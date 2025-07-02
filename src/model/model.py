@@ -1,14 +1,16 @@
 import torch
 import torch.nn as nn
+from torchviz import make_dot
 from configs.configs import parse_arguments
 from torchvision import models
+
 
 args = parse_arguments()
 
 
-class FightDetection(nn.Module):
+class FightDetectionModel(nn.Module):
     def __init__(
-        self, num_classes, hidden_size=args.hidden_size, dropout_prob=args.dropout_prob
+        self, num_classes=2, hidden_size=args.hidden_size, dropout_prob=args.dropout_prob
     ):
 
         self.mobilenet = models.mobilenet_v2(
@@ -44,7 +46,7 @@ class FightDetection(nn.Module):
             nn.Linear(32, num_classes),
         )
 
-        self.softmax = nn.Softmax(dim=1)
+        # self.softmax = nn.Softmax(dim=1)
 
     def forward(self, x: torch.Tensor):
         batch_size, seq_len, C, H, W = x.shape
@@ -59,8 +61,22 @@ class FightDetection(nn.Module):
         last_time_step = lstm_out[:-1:]
         out = self.dropout2(last_time_step)
         out = self.fc_layers(out)
-        out = self.softmax(out)
+        # out = self.softmax(out)
 
         return out
 
+
+    def plot_model_structure(self, input_shape=(1, 10, 3, 224, 224), save_path='./visualization/FightDetectionModel.png'):
+
+        dummy_input = torch.randn(*input_shape)
+
+        self.eval()
+        with torch.no_grad():
+            output = self.forward(dummy_input)
+        self.train() 
+
+        dot = make_dot(output, params=dict(self.named_parameters()))
+
+        dot.render(save_path.replace('.png', ''), format='png', cleanup=True)
+        print(f"Biểu đồ mô hình đã được lưu tại {save_path}")
 

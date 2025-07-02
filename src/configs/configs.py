@@ -24,7 +24,7 @@ def parse_arguments():
     parser.add_argument(
         "--classes-list",
         nargs="+",
-        default=["class1", "class2", "class3"],
+        default=["NonViolence", "Violence"],
         help="Danh sách các lớp (nhãn), cách nhau bởi dấu cách",
     )
 
