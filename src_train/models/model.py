@@ -10,7 +10,10 @@ args = parse_arguments()
 
 class FightDetectionModel(nn.Module):
     def __init__(
-        self, num_classes=2, hidden_size=args.hidden_size, dropout_prob=args.dropout_prob
+        self,
+        num_classes=2,
+        hidden_size=args.hidden_size,
+        dropout_prob=args.dropout_prob,
     ):
 
         self.mobilenet = models.mobilenet_v2(
@@ -57,7 +60,7 @@ class FightDetectionModel(nn.Module):
         with torch.no_grad():
             features = self.feature_extractor(x)
         features = features.mean([2, 3])
-        features.view(batch_size, seq_len, -1)
+        features = features.view(batch_size, seq_len, -1)
         features = self.dropout1(features)
 
         lstm_out, _ = self.lstm(features)
@@ -68,18 +71,20 @@ class FightDetectionModel(nn.Module):
 
         return out
 
-
-    def plot_model_structure(self, input_shape=(1, 10, 3, 224, 224), save_path='./visualization/FightDetectionModel.png'):
+    def plot_model_structure(
+        self,
+        input_shape=(1, 10, 3, 224, 224),
+        save_path="./visualization/FightDetectionModel.png",
+    ):
 
         dummy_input = torch.randn(*input_shape)
 
         self.eval()
         with torch.no_grad():
             output = self.forward(dummy_input)
-        self.train() 
+        self.train()
 
         dot = make_dot(output, params=dict(self.named_parameters()))
 
-        dot.render(save_path.replace('.png', ''), format='png', cleanup=True)
+        dot.render(save_path.replace(".png", ""), format="png", cleanup=True)
         print(f"Biểu đồ mô hình đã được lưu tại {save_path}")
-
