@@ -40,6 +40,9 @@ class FightDetectionModel(nn.Module):
             nn.Linear(256, 128),
             nn.ReLU(),
             nn.Dropout(dropout_prob),
+            nn.Linear(128, 64),
+            nn.ReLU(),
+            nn.Dropout(dropout_prob),
             nn.Linear(64, 32),
             nn.ReLU(),
             nn.Dropout(dropout_prob),
@@ -53,7 +56,7 @@ class FightDetectionModel(nn.Module):
         x = x.view(batch_size * seq_len, C, H, W)
         with torch.no_grad():
             features = self.feature_extractor(x)
-        features.mean([2, 3])
+        features = features.mean([2, 3])
         features.view(batch_size, seq_len, -1)
         features = self.dropout1(features)
 
