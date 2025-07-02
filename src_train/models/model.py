@@ -15,6 +15,7 @@ class FightDetectionModel(nn.Module):
         hidden_size=args.hidden_size,
         dropout_prob=args.dropout_prob,
     ):
+        super().__init__()
 
         self.mobilenet = models.mobilenet_v2(
             weights=models.MobileNet_V2_Weights.DEFAULT
