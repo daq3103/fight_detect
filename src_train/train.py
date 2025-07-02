@@ -57,13 +57,13 @@ def main():
         raise ValueError(f"Optimizer {args.optimizer} not supported.")
 
     # 5. Data preparation (Using the new VideoDataset)
-    if not os.path.exists(args.data_dir):
-        print(f"Error: Dataset directory not found at {args.data_dir}")
+    if not os.path.exists(args.data_preprocessed_dir):
+        print(f"Error: Dataset directory not found at {args.data_preprocessed_dir}")
         print("Please ensure 'Real Life Violence Dataset' is extracted and located correctly.")
         return # Exit if data directory is not found
 
     full_dataset = VideoDataset(
-        data_dir=args.data_dir,
+        data_dir=args.data_preprocessed_dir,
         classes_list=args.classes_list,
         image_height=args.image_height,
         image_width=args.image_width,
