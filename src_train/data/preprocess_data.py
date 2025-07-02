@@ -3,7 +3,7 @@ import os
 import glob
 from tqdm import tqdm
 import numpy as np
-from data_utils import frames_extraction # Tái sử dụng hàm của bạn
+from data.data_utils import frames_extraction # Tái sử dụng hàm của bạn
 from configs.configs import parse_arguments
 
 
