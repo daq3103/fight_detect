@@ -40,11 +40,11 @@ class FightDetectionModel(nn.Module):
             nn.Linear(hidden_size * 2, 256),
             nn.ReLU(),
             nn.Dropout(dropout_prob),
-            nn.Linear(256, 128),
+            nn.Linear(256, 64),
             nn.ReLU(),
-            nn.Dropout(dropout_prob),
-            nn.Linear(128, 64),
-            nn.ReLU(),
+            # nn.Dropout(dropout_prob),
+            # nn.Linear(128, 64),
+            # nn.ReLU(),
             nn.Dropout(dropout_prob),
             nn.Linear(64, 32),
             nn.ReLU(),
@@ -64,7 +64,7 @@ class FightDetectionModel(nn.Module):
         features = self.dropout1(features)
 
         lstm_out, _ = self.lstm(features)
-        last_time_step = lstm_out[:-1:]
+        last_time_step = lstm_out[:, -1, :]
         out = self.dropout2(last_time_step)
         out = self.fc_layers(out)
         # out = self.softmax(out)
