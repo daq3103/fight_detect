@@ -6,8 +6,8 @@ def parse_arguments():
 
     # Model parameters
     parser.add_argument('--num_classes', type=int, default=2, help='Number of output classes.')
-    parser.add_argument('--hidden_size', type=int, default=512, help='Hidden size for LSTM layer.')
-    parser.add_argument('--dropout_prob', type=float, default=0.5, help='Dropout probability.')
+    parser.add_argument('--hidden_size', type=int, default=32, help='Hidden size for LSTM layer.')
+    parser.add_argument('--dropout_prob', type=float, default=0.25, help='Dropout probability.')
 
     # Training parameters
     parser.add_argument('--epochs', type=int, default=50, help='Number of training epochs.')

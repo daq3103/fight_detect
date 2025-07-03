@@ -4,3 +4,4 @@ torchviz
 numpy
 matplotlib
 tqdm
+# tensorflow==2.6.4

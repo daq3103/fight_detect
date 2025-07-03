@@ -11,41 +11,50 @@ args = parse_arguments()
 class FightDetectionModel(nn.Module):
     def __init__(
         self,
-        num_classes=2,
+        num_classes=args.num_classes,
         hidden_size=args.hidden_size,
         dropout_prob=args.dropout_prob,
+        image_height=args.image_height,
+        image_width=args.image_width,
     ):
         super().__init__()
 
-        self.mobilenet = models.mobilenet_v2(
-            weights=models.MobileNet_V2_Weights.DEFAULT
-        )
-        self.feature_extractor = nn.Sequential(*list(self.mobilenet.children())[:-1])
-
-        for param in self.feature_extractor.parameters():
+        # 1) Backbone MobileNetV2
+        backbone = models.mobilenet_v2(pretrained=True).features
+        for param in backbone.parameters():
             param.requires_grad = False
+        # Unfreeze 40 leaf modules
+        leafs = [m for m in backbone.modules() if len(list(m.children())) == 0]
+        for module in leafs[-40:]:
+            for p in module.parameters():
+                p.requires_grad = True
+        self.backbone = backbone
 
-        self.dropout1 = nn.Dropout(dropout_prob)
+        # 2) Tính kích thước đầu ra của feature extractor
+        with torch.no_grad():
+            dummy = torch.zeros(1, 3, image_height, image_width)
+            fo = self.backbone(dummy)
+            feat_dim = fo.view(1, -1).size(1)
 
+        # 3) LSTM Bi-directional
         self.lstm = nn.LSTM(
-            input_size=1280,
+            input_size=feat_dim,
             hidden_size=hidden_size,
-            num_layers=1,
             batch_first=True,
             bidirectional=True,
         )
 
-        self.dropout2 = nn.Dropout(dropout_prob)
-
-        self.fc_layers = nn.Sequential(
-            nn.Linear(hidden_size * 2, 256),
+        # 4) Cụm classifier gọn trong Sequential (bỏ Softmax)
+        self.classifier = nn.Sequential(
+            nn.Dropout(dropout_prob),
+            nn.Linear(2 * hidden_size, 256),
             nn.ReLU(),
             nn.Dropout(dropout_prob),
-            nn.Linear(256, 64),
+            nn.Linear(256, 128),
             nn.ReLU(),
-            # nn.Dropout(dropout_prob),
-            # nn.Linear(128, 64),
-            # nn.ReLU(),
+            nn.Dropout(dropout_prob),
+            nn.Linear(128, 64),
+            nn.ReLU(),
             nn.Dropout(dropout_prob),
             nn.Linear(64, 32),
             nn.ReLU(),
@@ -53,24 +62,22 @@ class FightDetectionModel(nn.Module):
             nn.Linear(32, num_classes),
         )
 
-        # self.softmax = nn.Softmax(dim=1)
+    def forward(self, x):
+        # x: (batch, seq_len, C, H, W)
+        B, S, C, H, W = x.shape
+        # 1) Backbone per-frame
+        x = x.view(B * S, C, H, W)
+        x = self.backbone(x)  # (B*S, feat_map_dims...)
+        x = x.view(B, S, -1)  # (B, S, feat_dim)
 
-    def forward(self, x: torch.Tensor):
-        batch_size, seq_len, C, H, W = x.shape
-        x = x.view(batch_size * seq_len, C, H, W)
-        with torch.no_grad():
-            features = self.feature_extractor(x)
-        features = features.mean([2, 3])
-        features = features.view(batch_size, seq_len, -1)
-        features = self.dropout1(features)
+        # 2) LSTM
+        lstm_out, _ = self.lstm(x)  # (B, S, 2*hidden_size)
+        fw = lstm_out[:, -1, : self.lstm.hidden_size]
+        bw = lstm_out[:, 0, self.lstm.hidden_size :]
+        x = torch.cat([fw, bw], dim=1)  # (B, 2*hidden_size)
 
-        lstm_out, _ = self.lstm(features)
-        last_time_step = lstm_out[:, -1, :]
-        out = self.dropout2(last_time_step)
-        out = self.fc_layers(out)
-        # out = self.softmax(out)
-
-        return out
+        logits = self.classifier(x)
+        return logits
 
     def plot_model_structure(
         self,
