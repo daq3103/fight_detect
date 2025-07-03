@@ -10,7 +10,7 @@ def parse_arguments():
     parser.add_argument('--dropout_prob', type=float, default=0.25, help='Dropout probability.')
 
     # Training parameters
-    parser.add_argument('--epochs', type=int, default=50, help='Number of training epochs.')
+    parser.add_argument('--epochs', type=int, default=100, help='Number of training epochs.')
     parser.add_argument('--batch_size', type=int, default=8, help='Batch size for training.')
     parser.add_argument('--learning_rate', type=float, default=0.01, help='Initial learning rate for optimizer.')
     parser.add_argument('--optimizer', type=str, default='SGD', choices=['SGD', 'Adam'], help='Optimizer to use.')
