@@ -17,17 +17,17 @@ from models.model import FightDetectionModel
 def main():
     # ============= CẤU HÌNH CỐ ĐỊNH =============
     # Đường dẫn video đầu vào
-    input_video = os.path.join(parent_dir, "testing", "input", "V_115.mp4")
+    input_video = os.path.join(parent_dir, "testing", "input", "V_387.mp4")
     
     # Đường dẫn video đầu ra
-    output_video = os.path.join(parent_dir, "testing", "output", "V_115_output.mp4")
+    output_video = os.path.join(parent_dir, "testing", "output", "V_387.mp4")
     
     # Đường dẫn trọng số mô hình
     weights_path = os.path.join(parent_dir, "weights", "best_mobibilstm_model.pt")
     
     # Tham số mô hình
     img_size = 64  # Phải khớp với kích thước training (64x64)
-    seq_len = 64   # Độ dài chuỗi frame
+    seq_len = 16   # Độ dài chuỗi frame
     num_classes = 2
     hidden_size = 32
     dropout_prob = 0.25
