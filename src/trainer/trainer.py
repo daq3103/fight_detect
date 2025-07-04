@@ -199,14 +199,14 @@ class Trainer3DCNN:
         epoch_acc = correct / total
         return epoch_loss, epoch_acc, time.time() - batch_time
 
-    def _validate(self, epoch):
+    def _validate(self, num_epochs):
         self.model.eval()
         val_loss = 0.0
         correct = 0
         total = 0
         
         with torch.no_grad():
-            for inputs, labels in tqdm(self.val_dataloader, desc=f"Epoch {epoch+1} Val"):
+            for inputs, labels in tqdm(self.val_dataloader, desc=f"Epoch {num_epochs+1} Val"):
                 inputs = inputs.to(self.device, non_blocking=True)
                 labels = labels.to(self.device, non_blocking=True)
                 
