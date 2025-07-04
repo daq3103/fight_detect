@@ -103,6 +103,7 @@ class FightDetection3DCNN(nn.Module):
     def __init__(
         self,
         num_classes=args.num_classes,
+        hidden_size=args.hidden_size,
         dropout_prob=args.dropout_prob,
         unfreeze_layers=10,  # Số layer cuối sẽ unfreeze
     ):
