@@ -12,7 +12,7 @@ parent_dir = os.path.dirname(current_dir)
 sys.path.insert(0, parent_dir)
 
 # Import từ thư mục models
-from models.model import FightDetectionModel
+from models.model import FightDetectionModel, FightDetection3DCNN
 
 def main():
     # ============= CẤU HÌNH CỐ ĐỊNH =============

@@ -12,7 +12,7 @@ from models.model import FightDetectionModel, FightDetection3DCNN
 from data.datasets import VideoDataset # Import VideoDataset
 # from data.data_utils import frames_extraction # Not directly used here, but good to know it's in data_utils
 from utils.callbacks import EarlyStopping
-from trainer.trainer import Trainer
+from trainer.trainer import Trainer, Trainer3DCNN
 from utils.viz import plot_metric, plot_combined_metrics # Import plotting functions
 
 def set_seed(seed):
@@ -118,7 +118,7 @@ def main():
 
 
     # 7. Initialize and run Trainer
-    trainer = Trainer(
+    trainer = Trainer3DCNN(
         model=model,
         criterion=criterion,
         optimizer=optimizer,
