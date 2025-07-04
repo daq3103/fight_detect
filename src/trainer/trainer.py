@@ -225,11 +225,11 @@ class Trainer3DCNN:
         val_acc = correct / total
         return val_loss, val_acc
 
-    def train(self, epochs):
+    def train(self, num_epochs):
         print(f"Training started on {self.device}")
         print(f"Using AMP: {self.use_amp} | Grad Accumulation: {self.grad_accum_steps} steps")
         
-        for epoch in range(epochs):
+        for epoch in range(num_epochs):
             start_time = time.time()
             
             # Train phase
@@ -289,7 +289,7 @@ class Trainer3DCNN:
                     stop_training = True
             
             # Print epoch summary
-            print(f"Epoch {epoch+1}/{epochs} | Time: {epoch_time:.2f}s")
+            print(f"Epoch {epoch+1}/{num_epochs} | Time: {epoch_time:.2f}s")
             print(f"Train Loss: {train_loss:.4f} | Acc: {train_acc:.4f}")
             print(f"Val Loss: {val_loss:.4f} | Acc: {val_acc:.4f} | Best Acc: {self.best_val_acc:.4f} @ epoch {self.best_epoch+1}")
             print(f"LR: {current_lr:.6f}")
