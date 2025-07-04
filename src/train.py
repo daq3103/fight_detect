@@ -8,7 +8,7 @@ import os # Thêm import os để kiểm tra đường dẫn
 
 # Import from your project structure
 from configs.configs import parse_arguments
-from models.model import FightDetectionModel
+from models.model import FightDetectionModel, FightDetection3DCNN
 from data.datasets import VideoDataset # Import VideoDataset
 # from data.data_utils import frames_extraction # Not directly used here, but good to know it's in data_utils
 from utils.callbacks import EarlyStopping
@@ -33,7 +33,7 @@ def main():
     print(f"Sử dụng thiết bị: {device}")
 
     # 2. Model initialization
-    model = FightDetectionModel(
+    model = FightDetection3DCNN(
         num_classes=args.num_classes,
         hidden_size=args.hidden_size,
         dropout_prob=args.dropout_prob
