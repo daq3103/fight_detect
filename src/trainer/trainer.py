@@ -121,7 +121,7 @@ class Trainer:
 class Trainer3DCNN:
     def __init__(self, model, criterion, optimizer, device,
                  train_dataloader, val_dataloader,
-                 callbacks=None, model_dir='./weights/',
+                 callbacks=None, model_save_path='./weights/best_model.pt',
                  use_amp=True, grad_accum_steps=2):
         self.model = model.to(device)
         self.criterion = criterion
@@ -130,13 +130,13 @@ class Trainer3DCNN:
         self.train_dataloader = train_dataloader
         self.val_dataloader = val_dataloader
         self.callbacks = callbacks if callbacks is not None else []
-        self.model_dir = model_dir
+        self.model_dir = model_save_path
         self.use_amp = use_amp
         self.grad_accum_steps = grad_accum_steps
         self.scaler = GradScaler(enabled=use_amp)
         
-        os.makedirs(model_dir, exist_ok=True)
-        self.writer = SummaryWriter(log_dir=os.path.join(model_dir, 'logs'))
+        os.makedirs(model_save_path, exist_ok=True)
+        self.writer = SummaryWriter(log_dir=os.path.join(model_save_path, 'logs'))
         
         self.history = {
             'train_loss': [], 'train_acc': [],
