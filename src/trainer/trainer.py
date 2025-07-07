@@ -10,7 +10,7 @@ from torch.utils.tensorboard import SummaryWriter
 
 from utils.callbacks import EarlyStopping
 
-class Trainer:
+class Trainer_CNN_LSTM:
     def __init__(self, model, criterion, optimizer, device,
                  train_dataloader, val_dataloader,
                  callbacks=None, model_save_path='./weights/best_model.pt'):
