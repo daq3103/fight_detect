@@ -105,6 +105,8 @@ class FightDetection3DCNN(nn.Module):
         num_classes=args.num_classes,
         hidden_size=args.hidden_size,
         dropout_prob=args.dropout_prob,
+        image_height=args.image_height,
+        image_width=args.image_width,
         unfreeze_layers=10,  # Số layer cuối sẽ unfreeze
     ):
         super().__init__()
@@ -114,7 +116,7 @@ class FightDetection3DCNN(nn.Module):
         self.backbone = r2plus1d_18(weights=weights)
 
         # 2) Đóng băng toàn bộ backbone trước
-        for param in self.backbone.parameters():
+        for param in self.backbone.parameters():   
             param.requires_grad = False
 
         # 3) Mở đóng băng cho các layer cuối
