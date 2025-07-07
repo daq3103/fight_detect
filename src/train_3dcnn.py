@@ -1,4 +1,3 @@
-# main.py
 import torch
 import torch.nn as nn
 from torch.utils.data import DataLoader, random_split
@@ -6,15 +5,13 @@ import numpy as np
 import random
 import os  # Thêm import os để kiểm tra đường dẫn
 
-# Import from your project structure
 from configs.configs import parse_arguments
 from models.model_3dcnn_r2plus1d import FightDetection3DCNN
-from data.datasets import VideoDataset  # Import VideoDataset
+from data.datasets import VideoDataset  
 
-# from data.data_utils import frames_extraction # Not directly used here, but good to know it's in data_utils
 from utils.callbacks import EarlyStopping
 from trainer.trainer import Trainer, Trainer3DCNN
-from utils.viz import plot_metric, plot_combined_metrics  # Import plotting functions
+from utils.viz import plot_metric, plot_combined_metrics 
 
 
 def set_seed(seed):
