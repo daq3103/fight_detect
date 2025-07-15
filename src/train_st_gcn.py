@@ -16,7 +16,7 @@ from models.yolopose_stgcn import OptimizedFightDetector # <-- THAY ĐỔI: Thay
 # THAY ĐỔI: Bạn cần tạo một Dataset mới để tải dữ liệu keypoints.
 # Dưới đây là một ví dụ về cấu trúc của PoseDataset.
 # Bạn cần thay thế nó bằng implementation thực tế của mình.
-from data.datasets import PoseDataset # <-- THAY ĐỔI: Sử dụng PoseDataset
+from data.datasets import VideoDataset # <-- THAY ĐỔI: Sử dụng PoseDataset
 
 from utils.callbacks import EarlyStopping
 from trainer.trainer import Trainer3DCNN # Giữ nguyên Trainer, nó vẫn tương thích
@@ -73,7 +73,7 @@ def main():
         return
 
     # Sử dụng PoseDataset thay vì VideoDataset
-    full_dataset = PoseDataset(
+    full_dataset = VideoDataset(
         data_path=os.path.join(args.data_preprocessed_dir, "train_data.npy"), # Ví dụ đường dẫn
         label_path=os.path.join(args.data_preprocessed_dir, "train_label.pkl"), # Ví dụ đường dẫn
         max_persons=args.max_persons
