@@ -106,7 +106,7 @@ def main():
     # 1. Tải mô hình YOLOv8-Pose
     print(f"Đang tải mô hình {args.yolo_model_name}...")
     device = 'cuda' if torch.cuda.is_available() else 'cpu'
-    yolo_model = YOLO(args.yolo_model).to(device)
+    yolo_model = YOLO(args.yolo_model_name).to(device)
     print(f"Mô hình đã được tải lên {device}.")
 
     # 2. Tạo thư mục đích nếu chưa có
