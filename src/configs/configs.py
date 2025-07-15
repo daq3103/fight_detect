@@ -43,6 +43,9 @@ def parse_arguments():
     parser.add_argument('--num_joints', type=int, default=17) 
     parser.add_argument('--max_persons', type=int, default=5) 
 
+    #
+    parser.add_argument('--use_amp', action='store_true', help='Sử dụng Automatic Mixed Precision (AMP) để tăng tốc độ huấn luyện.')
+
 
     # Other
     parser.add_argument('--seed', type=int, default=42, help='Random seed for reproducibility.')
