@@ -37,7 +37,11 @@ def parse_arguments():
     parser.add_argument('--sequence_length', type=int, default=16, help='Number of frames to extract per video.')
     parser.add_argument('--classes_list', nargs='+', default=["NonViolence", "Violence"], help='List of class names.')
     parser.add_argument('--val_split', type=float, default=0.2, help='Validation split ratio.') # train_test_split in Keras was 0.1, now using val_split for random_split
+
+    # ST-GCN
     parser.add_argument('--in_channels', type=int, default=3) 
+    parser.add_argument('--num_joints', type=int, default=17) 
+    parser.add_argument('--max_persons', type=int, default=5) 
 
 
     # Other
