@@ -45,6 +45,7 @@ def parse_arguments():
 
     #
     parser.add_argument('--use_amp', action='store_true', help='Sử dụng Automatic Mixed Precision (AMP) để tăng tốc độ huấn luyện.')
+    parser.add_argument('--grad_accum_steps', type=int, default=1, help='Số bước tích lũy gradient trước khi cập nhật trọng số.')
 
 
     # Other
