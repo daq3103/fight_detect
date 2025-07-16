@@ -13,7 +13,7 @@ def parse_arguments():
     parser.add_argument('--epochs', type=int, default=100, help='Number of training epochs.')
     parser.add_argument('--batch_size', type=int, default=8, help='Batch size for training.')
     parser.add_argument('--learning_rate', type=float, default=0.01, help='Initial learning rate for optimizer.')
-    parser.add_argument('--optimizer', type=str, default='SGD', choices=['SGD', 'Adam', 'AdamW'], help='Optimizer to use.')
+    parser.add_argument('--optimizer', type=str, default='AdamW', choices=['SGD', 'Adam', 'AdamW'], help='Optimizer to use.')
 
     # Early Stopping Callback parameters
     parser.add_argument('--es_patience', type=int, default=10, help='Early stopping patience.')
