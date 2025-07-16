@@ -45,6 +45,7 @@ class VideoDataset(Dataset):
         
         return frames_tensor, label_tensor
     
+
 class PoseDataset(Dataset):
     """
     Dataset để tải dữ liệu keypoints đã được gộp lại từ file .npy.
@@ -71,16 +72,13 @@ class PoseDataset(Dataset):
         """Tải dữ liệu keypoints và nhãn từ các file đã được aggregate."""
         print(f"Đang tải dữ liệu từ: {self.data_path}")
         
-        # File .npy của bạn là một mảng NumPy lớn, vì vậy chúng ta chỉ cần
-        # dùng np.load() để đọc nó trực tiếp. Bỏ `.item()` đi.
+        # File .npy là một mảng NumPy lớn với shape (N, T, P, J, C)
         self.keypoints_data = np.load(self.data_path)
         
         with open(self.label_path, 'rb') as f:
             self.labels = pickle.load(f)
         
         print(f"Đã tải thành công: {self.keypoints_data.shape[0]} mẫu.")
-        # Shape mong đợi: (Số mẫu, Sequence Length, Max Persons, Num Joints, Channels)
-        # Ví dụ: (500, 30, 2, 17, 3)
 
     def __len__(self):
         """Trả về tổng số mẫu trong dataset."""
@@ -89,9 +87,18 @@ class PoseDataset(Dataset):
     def __getitem__(self, idx):
         """Lấy một mẫu dữ liệu tại vị trí idx."""
         # Lấy dữ liệu keypoints và nhãn tương ứng
-        # Shape ban đầu từ file npy: (T, P, J, C)
-        keypoints = self.keypoints_data[idx] 
+        # Shape từ file npy: (T, P, J, C)
+        keypoints = self.keypoints_data[idx]
         label = self.labels[idx]
 
         # Chuyển đổi sang PyTorch tensor
         keypoints_tensor = torch.from_numpy(keypoints).float()
+
+        # Giữ nguyên thứ tự axes (T, P, J, C)
+        # Trainer/model sẽ tự permute thành (N, C, T, P, J)
+
+        # Đảm bảo luôn return tuple (tensor, label)
+        label_tensor = torch.tensor(label, dtype=torch.long)
+        return keypoints_tensor, label_tensor
+
+  
