@@ -14,7 +14,7 @@ from configs.configs import parse_arguments
 from models.yolopose_stgcn import OptimizedFightDetector # Sửa 'your_model_file'
 from data.datasets import PoseDataset # Sử dụng PoseDataset đã viết ở câu trả lời trước
 from utils.callbacks import EarlyStopping
-from trainer.trainer import Trainer3DCNN # Giữ nguyên tên, class vẫn tương thích
+from trainer.trainer import TrainerSTGCN # Giữ nguyên tên, class vẫn tương thích
 from utils.viz import plot_combined_metrics 
 
 def set_seed(seed):
@@ -115,7 +115,7 @@ def main():
     callbacks.append(reduce_lr_scheduler)
 
     # 7. Initialize and run Trainer
-    trainer = Trainer3DCNN( # Tên class cũ nhưng vẫn dùng tốt
+    trainer = TrainerSTGCN( # Tên class cũ nhưng vẫn dùng tốt
         model=model,
         criterion=criterion,
         optimizer=optimizer,

@@ -12,7 +12,7 @@ def parse_arguments():
     # Training parameters
     parser.add_argument('--epochs', type=int, default=100, help='Number of training epochs.')
     parser.add_argument('--batch_size', type=int, default=8, help='Batch size for training.')
-    parser.add_argument('--learning_rate', type=float, default=0.01, help='Initial learning rate for optimizer.')
+    parser.add_argument('--learning_rate', type=float, default=0.001, help='Initial learning rate for optimizer.')
     parser.add_argument('--optimizer', type=str, default='AdamW', choices=['SGD', 'Adam', 'AdamW'], help='Optimizer to use.')
 
     # Early Stopping Callback parameters
@@ -25,7 +25,7 @@ def parse_arguments():
     # ReduceLROnPlateau Callback parameters
     parser.add_argument('--lr_reduce_monitor', type=str, default='val_loss', choices=['val_loss', 'val_accuracy'], help='Metric to monitor for LR reduction.')
     parser.add_argument('--lr_reduce_factor', type=float, default=0.6, help='Factor by which the learning rate will be reduced.')
-    parser.add_argument('--lr_reduce_patience', type=int, default=5, help='Number of epochs with no improvement after which learning rate will be reduced.')
+    parser.add_argument('--lr_reduce_patience', type=int, default=3, help='Number of epochs with no improvement after which learning rate will be reduced.')
     parser.add_argument('--lr_reduce_min_lr', type=float, default=0.00005, help='Lower bound on the learning rate.')
     parser.add_argument('--lr_reduce_verbose', type=bool, default=True, help='Print message on LR reduction.')
 

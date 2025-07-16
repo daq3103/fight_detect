@@ -7,7 +7,7 @@ class EarlyStopping:
     """
     Early stops the training if validation accuracy doesn't improve after a given patience.
     """
-    def __init__(self, patience=7, verbose=False, delta=0, path='checkpoint.pt', trace_func=print, monitor='val_accuracy', restore_best_weights=True):
+    def __init__(self, patience=10, verbose=False, delta=0, path='checkpoint.pt', trace_func=print, monitor='val_accuracy', restore_best_weights=True):
         """
         Args:
             patience (int): How long to wait after last time validation accuracy improved.
