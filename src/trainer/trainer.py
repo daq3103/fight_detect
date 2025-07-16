@@ -237,20 +237,15 @@ class Trainer3DCNN:
             
             # Validation phase
             val_loss, val_acc = self._validate(epoch)
-            ###
-            if self.lr_scheduler:
-                # Dùng val_loss cho ReduceLROnPlateau
-                if isinstance(self.lr_scheduler, torch.optim.lr_scheduler.ReduceLROnPlateau):
-                    self.lr_scheduler.step(val_loss)
-                # Các scheduler khác không cần tham số
-                else:
-                    self.lr_scheduler.step()
+            
             # Update learning rate
             current_lr = self.optimizer.param_groups[0]['lr']
+            if self.lr_scheduler:
+                if isinstance(self.lr_scheduler, torch.optim.lr_scheduler.ReduceLROnPlateau):
+                    self.lr_scheduler.step(val_loss)
+                else:
+                    self.lr_scheduler.step()
             
-            self.history['learning_rate'].append(current_lr)
-            self.writer.add_scalar('Learning Rate', current_lr, epoch)
-                
             # Update history
             self.history['train_loss'].append(train_loss)
             self.history['train_acc'].append(train_acc)
