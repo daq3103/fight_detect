@@ -5,4 +5,5 @@ numpy
 matplotlib
 tqdm
 ultralytics
+pickle
 # tensorflow==2.6.4

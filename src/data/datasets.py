@@ -45,11 +45,10 @@ class VideoDataset(Dataset):
         
         return frames_tensor, label_tensor
     
-
 class PoseDataset(Dataset):
     """
     Dataset để tải dữ liệu keypoints đã được gộp lại từ file .npy.
-    
+
     Phiên bản này được sửa để đọc trực tiếp file .npy chứa một mảng NumPy lớn,
     thay vì đọc một đối tượng được đóng gói.
     """
@@ -72,7 +71,6 @@ class PoseDataset(Dataset):
         """Tải dữ liệu keypoints và nhãn từ các file đã được aggregate."""
         print(f"Đang tải dữ liệu từ: {self.data_path}")
         
-        # === SỬA LỖI TẠI ĐÂY ===
         # File .npy của bạn là một mảng NumPy lớn, vì vậy chúng ta chỉ cần
         # dùng np.load() để đọc nó trực tiếp. Bỏ `.item()` đi.
         self.keypoints_data = np.load(self.data_path)
@@ -97,11 +95,3 @@ class PoseDataset(Dataset):
 
         # Chuyển đổi sang PyTorch tensor
         keypoints_tensor = torch.from_numpy(keypoints).float()
-        
-        # PyTorch và các model 3D-CNN thường mong muốn channel ở trước: (C, T, P, J)
-        # T: time (sequence_length), P: person, J: joint, C: channel (x, y, conf)
-        keypoints_tensor = keypoints_tensor.permute(3, 0, 1, 2) 
-
-        label_tensor = torch.tensor(label, dtype=torch.long)
-
-        return keypoints_tensor, label_tensor
