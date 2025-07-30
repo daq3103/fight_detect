@@ -44,6 +44,9 @@ def main():
 
     # 3. Model, Loss, Optimizer
     model = FightDetector3DCNN().to(DEVICE)
+    if torch.cuda.device_count() > 1:
+        print(f"Sử dụng {torch.cuda.device_count()} GPU!")
+        model = nn.DataParallel(model, device_ids=[0, 1])
     criterion = NTXentLoss(temperature=config['temperature'], device=DEVICE)
     optimizer = optim.AdamW(model.parameters(), lr=config['learning_rate'], weight_decay=1e-6)
     scheduler = optim.lr_scheduler.CosineAnnealingLR(optimizer, T_max=len(data_loader)*config['epochs'])
