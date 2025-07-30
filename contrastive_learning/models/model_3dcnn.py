@@ -112,20 +112,16 @@ class FightDetector3DCNN(nn.Module):
             param.requires_grad = True
 
     def __unfreeze_top_layers(self, num_layers: int):
-        children = list(self.backbone.children())
-        total_children = len(children)
-
-        if num_layers > total_children:
-            print(
-                f"Cảnh báo: Yêu cầu unfreeze {num_layers} layers nhưng chỉ có {total_children} layers"
-            )
-            num_layers = total_children
-
-        for i, child in enumerate(children):
-            if i >= total_children - num_layers:
-                for param in child.parameters():
-                    param.requires_grad = True
-        print(f"Đã mở băng {num_layers} lớp cuối của backbone.")
+        # Unfreeze theo block thay vì toàn bộ
+        layers_to_unfreeze = [
+            self.backbone.layer3,
+            self.backbone.layer4,
+            self.backbone.avgpool
+        ][-num_layers:]
+        
+        for layer in layers_to_unfreeze:
+            for param in layer.parameters():
+                param.requires_grad = True
 
     def prepare_for_finetuning_classifier(self, unfreeze_layers=3):
         self.__freeze_backbone()

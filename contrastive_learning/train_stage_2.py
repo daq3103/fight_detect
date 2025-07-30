@@ -46,7 +46,8 @@ def main():
 
     # 3. Optimizer, Loss, Scheduler
     # Chỉ train các tham số của classifier_head
-    optimizer = optim.AdamW(model.classifier.parameters(), lr=config['learning_rate'])
+    params = filter(lambda p: p.requires_grad, model.parameters())
+    optimizer = optim.AdamW(params, lr=config['learning_rate'])
     criterion = nn.CrossEntropyLoss()
     scheduler = optim.lr_scheduler.ReduceLROnPlateau(optimizer, 'max', factor=0.5, patience=3, verbose=True)
 

@@ -17,12 +17,14 @@ def main():
     os.makedirs(config['save_dir'], exist_ok=True)
 
     # 1. Augmentation mạnh cho Contrastive Learning
+# train_stage_1_contrastive.py
     transform = transforms.Compose([
-        transforms.RandomResizedCrop(size=(IMAGE_HEIGHT, IMAGE_WIDTH), scale=(0.5, 1.0)),
+        transforms.RandomResizedCrop(size=(IMAGE_HEIGHT, IMAGE_WIDTH)),
         transforms.RandomHorizontalFlip(p=0.5),
-        transforms.ColorJitter(brightness=0.4, contrast=0.4, saturation=0.4, hue=0.1),
+        transforms.ColorJitter(0.4, 0.4, 0.4, 0.1),
         transforms.RandomGrayscale(p=0.2),
-        transforms.Normalize(mean=KINETICS_MEAN, std=KINETICS_STD),
+        transforms.RandomApply([transforms.GaussianBlur(3)], p=0.5),
+        # transforms.Cutout(max_size=IMAGE_HEIGHT//4)  # Bổ sung spatial augmentation
     ])
 
     # 2. DataLoader

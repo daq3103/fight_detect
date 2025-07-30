@@ -34,8 +34,8 @@ class SupervisedTrainer:
         
         progress_bar = tqdm(self.train_dataloader, desc="Training")
         for inputs, labels in progress_bar:
-            if not inputs.numel(): continue # Bỏ qua batch rỗng
-
+            if inputs.shape[0] == 0:  # Kiểm tra batch size
+                continue
             inputs, labels = inputs.to(self.device), labels.to(self.device)
 
             with autocast(enabled=(self.device == 'cuda')):
