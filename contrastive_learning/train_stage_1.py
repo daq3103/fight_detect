@@ -9,7 +9,7 @@ import os
 from models.model_3dcnn import FightDetector3DCNN
 from data.dataset import ContrastiveVideoDataset, collate_fn
 from utils.losses import NTXentLoss
-from configs.default_config import STAGE1_CL_CONFIG, DEVICE, SEQUENCE_LENGTH, IMAGE_HEIGHT, IMAGE_WIDTH
+from configs.default_config import STAGE1_CL_CONFIG, DEVICE, SEQUENCE_LENGTH, IMAGE_HEIGHT, IMAGE_WIDTH, KINETICS_MEAN, KINETICS_STD
 
 def main():
     print("--- Bắt đầu Giai đoạn 1: Contrastive Learning ---")
@@ -22,6 +22,7 @@ def main():
         transforms.RandomHorizontalFlip(p=0.5),
         transforms.ColorJitter(brightness=0.4, contrast=0.4, saturation=0.4, hue=0.1),
         transforms.RandomGrayscale(p=0.2),
+        transforms.Normalize(mean=KINETICS_MEAN, std=KINETICS_STD),
     ])
 
     # 2. DataLoader

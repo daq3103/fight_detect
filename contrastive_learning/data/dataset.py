@@ -5,7 +5,7 @@ import os
 import glob
 from data.data_utils import frames_extraction
 
-class VideoClipDataset(Dataset):
+class SupervisedVideoDataset(Dataset):
     def __init__(self, data_dir, classes_list, sequence_length, image_height, image_width, transform=None):
         self.data_dir = data_dir
         self.classes_list = classes_list
@@ -50,13 +50,6 @@ class VideoClipDataset(Dataset):
         label_tensor = torch.tensor(label, dtype=torch.long)
         
         return frames_tensor, label_tensor
-
-def collate_fn(batch):
-    """
-    Collate function để loại bỏ các mẫu `None` (video lỗi hoặc quá ngắn).
-    """
-    batch = list(filter(lambda x: x is not None, batch))
-    return torch.utils.data.dataloader.default_collate(batch) if batch else (torch.tensor([]), torch.tensor([]))
 
 # Dataset cho Giai đoạn 1 - Contrastive Learning
 class ContrastiveVideoDataset(Dataset):

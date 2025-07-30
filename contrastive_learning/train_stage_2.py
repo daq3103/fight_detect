@@ -42,11 +42,11 @@ def main():
     model.load_state_dict(torch.load(config['stage1_best_model_path'], map_location=DEVICE), strict=False)
     
     # Chuẩn bị model cho Giai đoạn 2: Đóng băng backbone
-    model.prepare_for_supervised_tuning()
+    model.prepare_for_finetuning_classifier()
 
     # 3. Optimizer, Loss, Scheduler
     # Chỉ train các tham số của classifier_head
-    optimizer = optim.AdamW(model.classifier_head.parameters(), lr=config['learning_rate'])
+    optimizer = optim.AdamW(model.classifier.parameters(), lr=config['learning_rate'])
     criterion = nn.CrossEntropyLoss()
     scheduler = optim.lr_scheduler.ReduceLROnPlateau(optimizer, 'max', factor=0.5, patience=3, verbose=True)
 
@@ -60,7 +60,6 @@ def main():
         val_dataloader=val_loader,
         lr_scheduler=scheduler,
         config=config,
-        mode='supervised' # Thêm mode để trainer biết gọi forward nào
     )
     
     trainer.train()

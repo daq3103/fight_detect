@@ -2,6 +2,7 @@
 import cv2
 import numpy as np
 
+
 def frames_extraction(video_path, image_height, image_width, sequence_length):
     """
     Trích xuất một số lượng frame cố định từ video, thay đổi kích thước và chuẩn hóa chúng.
@@ -24,8 +25,8 @@ def frames_extraction(video_path, image_height, image_width, sequence_length):
 
         resized_frame = cv2.resize(frame, (image_width, image_height))
         # Chuẩn hóa về [0, 1]
-        normalized_frame = resized_frame / 255.0
-        frames_list.append(normalized_frame)
+        # normalized_frame = resized_frame / 255.0
+        frames_list.append(resized_frame)
 
     video_reader.release()
 

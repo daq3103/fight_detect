@@ -12,9 +12,14 @@ IMAGE_HEIGHT = 112
 IMAGE_WIDTH = 112
 SEQUENCE_LENGTH = 16
 
+# --- Đặc điểm của phân phối dữ liệu Pretrain --- 
+
+KINETICS_MEAN = [0.43216, 0.394666, 0.37645]
+KINETICS_STD = [0.22803, 0.22145, 0.216989]
+
 # --- Giai đoạn 1: Contrastive Learning ---
 STAGE1_CL_CONFIG = {
-    "data_path": "/kaggle/input/rwf2000/RWF-2000", # Có thể dùng cả train/val vì không cần nhãn
+    "data_path": "/kaggle/input/rwf2000/RWF-2000",
     "epochs": 50, # CL cần nhiều epoch hơn
     "batch_size": 32, # Batch size lớn hơn tốt cho CL
     "learning_rate": 3e-4,
