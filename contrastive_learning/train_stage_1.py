@@ -21,8 +21,8 @@ def main():
 # train_stage_1_contrastive.py
     transform = transforms.Compose([
         transforms.RandomResizedCrop(size=(IMAGE_HEIGHT, IMAGE_WIDTH)),
-        transforms.RandomHorizontalFlip(p=0.5),
-        transforms.ColorJitter(0.4, 0.4, 0.4, 0.1),
+        transforms.RandomHorizontalFlip(p=0.3),
+        transforms.ColorJitter(0.2, 0.2, 0.2, 0.1),
         transforms.RandomGrayscale(p=0.2),
         transforms.RandomApply([transforms.GaussianBlur(3)], p=0.5),
         # transforms.Cutout(max_size=IMAGE_HEIGHT//4)  # Bổ sung spatial augmentation

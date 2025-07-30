@@ -22,7 +22,7 @@ STAGE1_CL_CONFIG = {
     "data_path": "/kaggle/input/rwf2000/RWF-2000",
     "epochs": 100, # CL cần nhiều epoch hơn
     "batch_size": 16, # Batch size lớn hơn tốt cho CL
-    "learning_rate": 5e-4,
+    "learning_rate": 6e-4,
     "temperature": 0.07, # Tham số cho NT-Xent Loss
     "save_dir": f"{MODEL_SAVE_DIR}/stage_1_contrastive",
 }
