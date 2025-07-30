@@ -9,7 +9,7 @@ import os
 from models.model_3dcnn import FightDetector3DCNN
 from data.dataset import ContrastiveVideoDataset, collate_fn
 from utils.losses import NTXentLoss
-from configs.default_config import STAGE1_CL_CONFIG, DEVICE, SEQUENCE_LENGTH, IMAGE_HEIGHT, IMAGE_WIDTH, KINETICS_MEAN, KINETICS_STD
+from configs.default_config import STAGE1_CL_CONFIG, DEVICE, SEQUENCE_LENGTH, IMAGE_HEIGHT, IMAGE_WIDTH
 
 def main():
     print("--- Bắt đầu Giai đoạn 1: Contrastive Learning ---")
