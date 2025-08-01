@@ -46,9 +46,10 @@ class NTXentLoss(nn.Module):
     
 
 class TripletLoss(nn.Module):
-    def __init__(self, margin=1.0, temperature=0.05):
+    def __init__(self, margin=1.0, temperature=0.05, device='cuda'):
         super().__init__()
         self.margin = margin
+        self.device = device
         self.temperature = temperature
 
     def forward(self, anchors, positives, negatives):
@@ -60,12 +61,26 @@ class TripletLoss(nn.Module):
             positives: embedding tensor [B, D]
             negatives: embedding tensor [B, D]
         """
-        anchors = F.normalize(anchors, p=2, dim=1)
+
+        # Chuyển tất cả inputs lên cùng device
+        device = self.device
+        positives = positives.to(device)
+        negatives = negatives.to(device)
+
+        # Chuyển margin và temperature thành tensors trên device
+        margin_t = torch.tensor(self.margin, device=device)
+        temp_t   = torch.tensor(self.temperature, device=device)
+
+        # Chuẩn hoá embeddings
+        anchors   = F.normalize(anchors,   p=2, dim=1)
         positives = F.normalize(positives, p=2, dim=1)
         negatives = F.normalize(negatives, p=2, dim=1)
-        
-        pos_sim = torch.sum(anchors * positives, dim=1) / self.temperature
-        neg_sim = torch.sum(anchors * negatives, dim=1) / self.temperature
-        
-        losses = F.relu(neg_sim - pos_sim + self.margin)
+
+        # Tính cosine similarities và chia temperature
+        pos_sim = torch.sum(anchors * positives, dim=1) / temp_t
+        neg_sim = torch.sum(anchors * negatives, dim=1) / temp_t
+
+        # Triplet hinge loss
+        losses = F.relu(neg_sim - pos_sim + margin_t)
+
         return losses.mean()
