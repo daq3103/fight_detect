@@ -92,7 +92,7 @@ class TripletLoss(nn.Module):
 
     #         return losses.mean()
 
-    def forward(self, anchor, positive, negative, margin=0.3):
+    def forward(self, anchor, positive, negative, margin=1.):
         # device = self.device
         # positives = positives.to(device)
         # negatives = negatives.to(device)

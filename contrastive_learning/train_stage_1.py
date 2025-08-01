@@ -35,28 +35,14 @@ def main():
     os.makedirs(config["save_dir"], exist_ok=True)
 
     # 1. Augmentation mạnh cho Contrastive Learning
-    transform = T.Compose(
-        [
-            T.Lambda(lambda vid: temporal_crop_fn(vid, 0.8)),
-            T.Lambda(lambda vid: vid.flip(0) if random.random() < 0.3 else vid),
-            T.Lambda(
-                lambda vid: torch.stack(
-                    [T.GaussianBlur(kernel_size=5)(f) for f in vid], dim=0
-                )
-            ),
-            T.Lambda(
-                lambda vid: torch.stack(
-                    [T.RandomResizedCrop((224, 224), scale=(0.8, 1.0))(f) for f in vid],
-                    dim=0,
-                )
-            ),
-            T.Lambda(
-                lambda vid: torch.stack(
-                    [T.ColorJitter(0.2, 0.2, 0.2, 0.1)(f) for f in vid], dim=0
-                )
-            ),
-        ]
-    )
+    transform = T.Compose([
+        T.Lambda(lambda vid: temporal_crop_fn(vid, 0.8)), # Cái này có thể giữ lại vì nó là logic đặc thù
+        T.RandomHorizontalFlip(p=0.5), # v2 có sẵn
+        T.GaussianBlur(kernel_size=(5, 9)), # v2 có sẵn
+        T.RandomResizedCrop(size=(224, 224), scale=(0.8, 1.0)), # v2 có sẵn
+        # ColorJitter áp dụng cho cả video thay vì từng frame
+        T.ColorJitter(brightness=0.2, contrast=0.2, saturation=0.2, hue=0.1),
+    ])
 
     # 2. DataLoader
     # Gộp cả train và val để có nhiều dữ liệu hơn, vì ta không cần nhãn
@@ -79,6 +65,16 @@ def main():
     )
     print(f"Đã tải {len(dataset)} mẫu video cho Contrastive Learning.")
 
+    # Implement Gradient Accumulation
+    physical_batch_size = config["batch_size"]
+    virtual_batch_size = config["virtual_batch_size"]
+    
+    # Đảm bảo chia hết, nếu không thì cần xử lý cẩn thận hơn
+    assert virtual_batch_size % physical_batch_size == 0, "Virtual batch size phải là bội số của physical batch size"
+    
+    accumulation_steps = virtual_batch_size // physical_batch_size
+    print(f"Sẽ tích lũy gradient qua {accumulation_steps} bước để đạt được virtual batch size là {virtual_batch_size}.")
+
     # 3. Model, Loss, Optimizer
     model = FightDetector3DCNN().to(DEVICE)
     if torch.cuda.device_count() > 1:
@@ -94,34 +90,39 @@ def main():
 
     # 4. Training Loop
     best_loss = float("inf")
+    optimizer.zero_grad()
+
     for epoch in range(config["epochs"]):
         running_loss = 0.0
         progress_bar = tqdm(data_loader, desc=f"Epoch {epoch+1}/{config['epochs']}")
 
-        for batch in progress_bar:
+        for i, batch in enumerate(progress_bar):
             if not batch:
                 continue
+            
             anchors = batch["anchors"].to(DEVICE)
             positives = batch["positives"].to(DEVICE)
             negatives = batch["negatives"].to(DEVICE)
 
-            optimizer.zero_grad()
-
-            # Forward 3 loại video
             emb_anchors, emb_positives, emb_negatives = model(
-                (anchors, positives, negatives),  # Truyền tuple 3 tensor
+                (anchors, positives, negatives),
                 mode="contrastive",
             )
-
-            # Tính triplet loss
+            
             loss = criterion(emb_anchors, emb_positives, emb_negatives)
-
+            
+            loss = loss / accumulation_steps
+            
             loss.backward()
-            optimizer.step()
-            scheduler.step()
+            
+            running_loss += loss.item() * accumulation_steps 
+            
+            if (i + 1) % accumulation_steps == 0:
+                optimizer.step()
+                scheduler.step()
+                optimizer.zero_grad()
+            progress_bar.set_postfix(loss=loss.item() * accumulation_steps)
 
-            running_loss += loss.item()
-            progress_bar.set_postfix(loss=loss.item())
 
         epoch_loss = running_loss / len(data_loader)
         print(f"Epoch {epoch+1} Loss: {epoch_loss:.4f}")

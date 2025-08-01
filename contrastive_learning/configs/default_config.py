@@ -25,6 +25,7 @@ STAGE1_CL_CONFIG = {
     "learning_rate": 5e-5,
     "temperature": 0.07, # Tham số cho NT-Xent Loss
     "save_dir": f"{MODEL_SAVE_DIR}/stage_1_contrastive",
+    "virtual_batch_size": 32,
 }
 
 # --- Giai đoạn 2: Supervised Fine-tuning ---
