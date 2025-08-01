@@ -21,7 +21,7 @@ KINETICS_STD = [0.22803, 0.22145, 0.216989]
 STAGE1_CL_CONFIG = {
     "data_path": "/kaggle/input/rwf2000/RWF-2000",
     "epochs": 30, # CL cần nhiều epoch hơn
-    "batch_size": 8, # Batch size lớn hơn tốt cho CL
+    "batch_size": 4, # Batch size lớn hơn tốt cho CL
     "learning_rate": 6e-4,
     "temperature": 0.07, # Tham số cho NT-Xent Loss
     "save_dir": f"{MODEL_SAVE_DIR}/stage_1_contrastive",
