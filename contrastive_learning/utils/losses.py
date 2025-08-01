@@ -43,3 +43,29 @@ class NTXentLoss(nn.Module):
         
         loss = self.criterion(logits, labels)
         return loss / (2 * batch_size)
+    
+
+class TripletLoss(nn.Module):
+    def __init__(self, margin=1.0, temperature=0.05):
+        super().__init__()
+        self.margin = margin
+        self.temperature = temperature
+
+    def forward(self, anchors, positives, negatives):
+        """
+        Tính triplet loss với cosine similarity
+        
+        Args:
+            anchors: embedding tensor [B, D]
+            positives: embedding tensor [B, D]
+            negatives: embedding tensor [B, D]
+        """
+        anchors = F.normalize(anchors, p=2, dim=1)
+        positives = F.normalize(positives, p=2, dim=1)
+        negatives = F.normalize(negatives, p=2, dim=1)
+        
+        pos_sim = torch.sum(anchors * positives, dim=1) / self.temperature
+        neg_sim = torch.sum(anchors * negatives, dim=1) / self.temperature
+        
+        losses = F.relu(neg_sim - pos_sim + self.margin)
+        return losses.mean()

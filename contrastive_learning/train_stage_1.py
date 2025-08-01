@@ -8,8 +8,8 @@ from tqdm import tqdm
 import os
 
 from models.model_3dcnn import FightDetector3DCNN
-from data.dataset import ContrastiveVideoDataset, collate_fn
-from utils.losses import NTXentLoss
+from data.dataset import SemanticContrastiveDataset, semantic_collate_fn
+from utils.losses import TripletLoss
 from configs.default_config import STAGE1_CL_CONFIG, DEVICE, SEQUENCE_LENGTH, IMAGE_HEIGHT, IMAGE_WIDTH
 
 def main():
@@ -18,29 +18,33 @@ def main():
     os.makedirs(config['save_dir'], exist_ok=True)
 
     # 1. Augmentation mạnh cho Contrastive Learning
-# train_stage_1_contrastive.py
     transform = transforms.Compose([
-        transforms.RandomResizedCrop(size=(IMAGE_HEIGHT, IMAGE_WIDTH)),
-        transforms.RandomHorizontalFlip(p=0.3),
-        transforms.ColorJitter(0.2, 0.2, 0.2, 0.1),
-        transforms.RandomGrayscale(p=0.2),
-        transforms.RandomApply([transforms.GaussianBlur(3)], p=0.5),
-        # transforms.Cutout(max_size=IMAGE_HEIGHT//4)  # Bổ sung spatial augmentation
+        transforms.TemporalCrop(ratio=0.8),       # Crop ngẫu nhiên 80% frame
+        transforms.RandomTimeReverse(p=0.3),       # Đảo ngược thứ tự frame
+        transforms.MotionBlur(kernel_size=5),      # Giả lập motion blur
+        # Giữ spatial augment nhẹ: RandomCrop, ColorJitter
     ])
+
 
     # 2. DataLoader
     # Gộp cả train và val để có nhiều dữ liệu hơn, vì ta không cần nhãn
     train_path = os.path.join(config['data_path'], 'train')
     val_path = os.path.join(config['data_path'], 'val')
     
-    dataset = ContrastiveVideoDataset(
-        data_dir=train_path, # Chỉ dùng train hoặc gộp cả train/val
+    dataset = SemanticContrastiveDataset(
+        data_dir=train_path,
         sequence_length=SEQUENCE_LENGTH,
         image_height=IMAGE_HEIGHT,
         image_width=IMAGE_WIDTH,
         transform=transform
     )
-    data_loader = DataLoader(dataset, batch_size=config['batch_size'], shuffle=True, num_workers=4, pin_memory=True, collate_fn=collate_fn)
+    data_loader = DataLoader(
+        dataset, 
+        batch_size=config['batch_size'], 
+        shuffle=True, 
+        collate_fn=semantic_collate_fn,
+        num_workers=4
+    )
     print(f"Đã tải {len(dataset)} mẫu video cho Contrastive Learning.")
 
     # 3. Model, Loss, Optimizer
@@ -48,7 +52,7 @@ def main():
     if torch.cuda.device_count() > 1:
         print(f"Sử dụng {torch.cuda.device_count()} GPU!")
         model = nn.DataParallel(model, device_ids=[0, 1])
-    criterion = NTXentLoss(temperature=config['temperature'], device=DEVICE)
+    criterion = TripletLoss(temperature=config['temperature'], device=DEVICE)
     optimizer = optim.AdamW(model.parameters(), lr=config['learning_rate'], weight_decay=1e-6)
     scheduler = optim.lr_scheduler.CosineAnnealingLR(optimizer, T_max=len(data_loader)*config['epochs'])
 
@@ -60,13 +64,19 @@ def main():
         
         for batch in progress_bar:
             if not batch: continue
-            view1, view2 = batch
-            view1, view2 = view1.to(DEVICE), view2.to(DEVICE)
+            anchors = batch['anchors'].to(DEVICE)
+            positives = batch['positives'].to(DEVICE)
+            negatives = batch['negatives'].to(DEVICE)
             
             optimizer.zero_grad()
             
-            emb1, emb2 = model((view1, view2), mode='contrastive')
-            loss = criterion(emb1, emb2)
+            # Forward 3 loại video
+            emb_anchors = model(anchors, mode='contrastive')
+            emb_positives = model(positives, mode='contrastive')
+            emb_negatives = model(negatives, mode='contrastive')
+            
+            # Tính triplet loss
+            loss = criterion(emb_anchors, emb_positives, emb_negatives)
             
             loss.backward()
             optimizer.step()
