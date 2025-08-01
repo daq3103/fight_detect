@@ -53,7 +53,7 @@ class NTXentLoss(nn.Module):
 
 
 class TripletLoss(nn.Module):
-    def __init__(self, margin=1.0, temperature=0.05, device="cuda"):
+    def __init__(self, margin=0.5, temperature=0.05, device="cuda"):
         super().__init__()
         self.margin = margin
         self.device = device
@@ -92,7 +92,7 @@ class TripletLoss(nn.Module):
 
     #         return losses.mean()
 
-    def forward(self, anchor, positive, negative, margin=1.):
+    def forward(self, anchor, positive, negative, margin=0.5):
         # device = self.device
         # positives = positives.to(device)
         # negatives = negatives.to(device)
