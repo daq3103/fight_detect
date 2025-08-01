@@ -74,28 +74,37 @@ class FightDetector3DCNN(nn.Module):
                 nn.init.kaiming_normal_(m.weight, mode="fan_out", nonlinearity="relu")
                 if m.bias is not None:
                     nn.init.constant_(m.bias, 0)
+    # gỏ NTXentLoss
+    # def forward_cl_training(self, x_augment_1: torch.Tensor, x_augment_2: torch.Tensor):
+    #     # [batch_size, seq_len, C, H, W] -> [batch_size, C, seq_len, H, W]
+    #     x_augment_1 = x_augment_1.permute(0, 2, 1, 3, 4)
+    #     x_augment_2 = x_augment_2.permute(0, 2, 1, 3, 4)
 
-    def forward_cl_training(self, x_augment_1: torch.Tensor, x_augment_2: torch.Tensor):
+    #     feature_1 = self.backbone(x_augment_1)
+    #     feature_2 = self.backbone(x_augment_2)
+
+    #     embedding_1 = self.CLprj(feature_1)
+    #     embedding_2 = self.CLprj(feature_2)
+
+    #     embedding_1 = F.normalize(embedding_1, p=2, dim=-1)
+    #     embedding_2 = F.normalize(embedding_2, p=2, dim=-1)
+
+    #     return embedding_1, embedding_2
+
+    def forward_cl_training(self, x: torch.Tensor):
         # [batch_size, seq_len, C, H, W] -> [batch_size, C, seq_len, H, W]
-        x_augment_1 = x_augment_1.permute(0, 2, 1, 3, 4)
-        x_augment_2 = x_augment_2.permute(0, 2, 1, 3, 4)
-
-        feature_1 = self.backbone(x_augment_1)
-        feature_2 = self.backbone(x_augment_2)
-
-        embedding_1 = self.CLprj(feature_1)
-        embedding_2 = self.CLprj(feature_2)
-
-        embedding_1 = F.normalize(embedding_1, p=2, dim=-1)
-        embedding_2 = F.normalize(embedding_2, p=2, dim=-1)
-
-        return embedding_1, embedding_2
+        x = x.permute(0, 2, 1, 3, 4) 
+        feature = self.backbone(x) 
+        embedding = self.CLprj(feature) 
+        embedding = F.normalize(embedding, p=2, dim=-1) 
+        return embedding 
 
     def forward(self, x: torch.Tensor, mode: str = "supervised"):
 
         if mode == "contrastive":
             x1, x2 = x
-            return self.forward_cl_training(x_augment_1=x1, x_augment_2=x2)
+            # return self.forward_cl_training(x_augment_1=x1, x_augment_2=x2)
+            return self.forward_cl_training(x=x)
 
         # x: [batch_size, seq_len, C, H, W] -> [batch_size, C, seq_len, H, W]
         x = x.permute(0, 2, 1, 3, 4)
