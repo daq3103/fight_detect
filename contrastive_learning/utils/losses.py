@@ -93,9 +93,9 @@ class TripletLoss(nn.Module):
     #         return losses.mean()
 
     def forward(self, anchor, positive, negative, margin=0.3):
-        device = self.device
-        positives = positives.to(device)
-        negatives = negatives.to(device)
+        # device = self.device
+        # positives = positives.to(device)
+        # negatives = negatives.to(device)
         pos_dist = F.pairwise_distance(anchor, positive, p=2)
         neg_dist = F.pairwise_distance(anchor, negative, p=2)
 
