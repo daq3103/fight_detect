@@ -108,9 +108,10 @@ def main():
             optimizer.zero_grad()
 
             # Forward 3 loại video
-            emb_anchors = model(anchors, mode="contrastive")
-            emb_positives = model(positives, mode="contrastive")
-            emb_negatives = model(negatives, mode="contrastive")
+            emb_anchors, emb_positives, emb_negatives = model(
+                (anchors, positives, negatives),  # Truyền tuple 3 tensor
+                mode="contrastive",
+            )
 
             # Tính triplet loss
             loss = criterion(emb_anchors, emb_positives, emb_negatives)
