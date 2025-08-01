@@ -102,7 +102,7 @@ class FightDetector3DCNN(nn.Module):
     def forward(self, x: torch.Tensor, mode: str = "supervised"):
 
         if mode == "contrastive":
-            x1, x2 = x
+            # x1, x2 = x
             # return self.forward_cl_training(x_augment_1=x1, x_augment_2=x2)
             return self.forward_cl_training(x=x)
 
