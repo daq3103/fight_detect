@@ -31,7 +31,7 @@ class CLProjection(nn.Module):
         super().__init__()
         self.CLprj = nn.Sequential(
             nn.Linear(in_features, hidden_dim),
-            nn.BatchNorm1d(hidden_dim) if hidden_dim >= 32 else nn.Identity(),
+            # nn.BatchNorm1d(hidden_dim) if hidden_dim >= 32 else nn.Identity(),
             nn.ReLU(),
             nn.Linear(hidden_dim, out_features),
         )
@@ -46,8 +46,8 @@ class FightDetector3DCNN(nn.Module):
         num_classes=2,
         hidden_size=512,
         dropout_prob=0.2,
-        cl_projection_hidden_dim=512,
-        cl_projection_out_dim=128,
+        cl_projection_hidden_dim=128,
+        cl_projection_out_dim=64,
         unfreeze_layer=10,
     ):
         super().__init__()
@@ -102,9 +102,11 @@ class FightDetector3DCNN(nn.Module):
     def forward(self, x: torch.Tensor, mode: str = "supervised"):
 
         if mode == "contrastive":
-            # x1, x2 = x
-            # return self.forward_cl_training(x_augment_1=x1, x_augment_2=x2)
-            return self.forward_cl_training(x=x)
+            anchor, positive, negative = x
+            emb_anchor = self.forward_cl_training(anchor)
+            emb_positive = self.forward_cl_training(positive)
+            emb_negative = self.forward_cl_training(negative)
+            return emb_anchor, emb_positive, emb_negative
 
         # x: [batch_size, seq_len, C, H, W] -> [batch_size, C, seq_len, H, W]
         x = x.permute(0, 2, 1, 3, 4)

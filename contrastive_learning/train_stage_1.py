@@ -8,6 +8,8 @@ from torchvision.transforms import v2 as T
 from tqdm import tqdm
 import os
 import random
+from torchvision.transforms import Compose, RandomApply
+from torchvision.transforms import ColorJitter, GaussianBlur, RandomResizedCrop
 from models.model_3dcnn import FightDetector3DCNN
 from data.dataset import SemanticContrastiveDataset, semantic_collate_fn
 from utils.losses import TripletLoss
@@ -87,7 +89,7 @@ def main():
         model.parameters(), lr=config["learning_rate"], weight_decay=1e-6
     )
     scheduler = optim.lr_scheduler.CosineAnnealingLR(
-        optimizer, T_max=len(data_loader) * config["epochs"]
+        optimizer, T_max=len(data_loader) * config["epochs"], eta_min=1e-6
     )
 
     # 4. Training Loop
