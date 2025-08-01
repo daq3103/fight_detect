@@ -7,7 +7,7 @@ from torchvision import transforms
 from torchvision.transforms import v2 as T
 from tqdm import tqdm
 import os
-
+import random
 from models.model_3dcnn import FightDetector3DCNN
 from data.dataset import SemanticContrastiveDataset, semantic_collate_fn
 from utils.losses import TripletLoss
@@ -20,6 +20,13 @@ from configs.default_config import (
 )
 
 
+def temporal_crop_fn(vid, ratio=0.8):
+    T0 = vid.size(0)
+    L = max(1, int(T0 * ratio))
+    start = random.randint(0, T0 - L)
+    return vid[start : start + L]
+
+
 def main():
     print("--- Bắt đầu Giai đoạn 1: Contrastive Learning ---")
     config = STAGE1_CL_CONFIG
@@ -27,11 +34,26 @@ def main():
 
     # 1. Augmentation mạnh cho Contrastive Learning
     transform = T.Compose(
-        T.UniformTemporalSubsample(num_samples=lambda num: int(num * 0.8)),
-        T.RandomReverse(p=0.3),
-        T.GaussianBlurVideo(kernel_size=(5, 5), sigma=(1.0, 2.0)),
-        T.RandomResizedCropVideo(size=(224, 224), scale=(0.8, 1.0)),
-        T.ColorJitterVideo(brightness=0.2, contrast=0.2, saturation=0.2, hue=0.1),
+        [
+            T.Lambda(lambda vid: temporal_crop_fn(vid, 0.8)),
+            T.Lambda(lambda vid: vid.flip(0) if random.random() < 0.3 else vid),
+            T.Lambda(
+                lambda vid: torch.stack(
+                    [T.GaussianBlur(kernel_size=5)(f) for f in vid], dim=0
+                )
+            ),
+            T.Lambda(
+                lambda vid: torch.stack(
+                    [T.RandomResizedCrop((224, 224), scale=(0.8, 1.0))(f) for f in vid],
+                    dim=0,
+                )
+            ),
+            T.Lambda(
+                lambda vid: torch.stack(
+                    [T.ColorJitter(0.2, 0.2, 0.2, 0.1)(f) for f in vid], dim=0
+                )
+            ),
+        ]
     )
 
     # 2. DataLoader
