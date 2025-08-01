@@ -26,7 +26,7 @@ def main():
     os.makedirs(config["save_dir"], exist_ok=True)
 
     # 1. Augmentation mạnh cho Contrastive Learning
-    transform = T.Sequential(
+    transform = T.Compose(
         T.UniformTemporalSubsample(num_samples=lambda num: int(num * 0.8)),
         T.RandomReverse(p=0.3),
         T.GaussianBlurVideo(kernel_size=(5, 5), sigma=(1.0, 2.0)),
