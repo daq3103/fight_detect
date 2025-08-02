@@ -92,7 +92,7 @@ def main():
     model.module.prepare_for_finetuning_classifier(unfreeze_layers=0)
     criterion = TripletLoss(temperature=config["temperature"], device=DEVICE)
     optimizer = optim.AdamW(
-        model.CLprj.parameters(), lr=config["learning_rate"], weight_decay=1e-6
+        model.module.CLprj.parameters(), lr=config["learning_rate"], weight_decay=1e-6
     )
     scheduler = optim.lr_scheduler.CosineAnnealingLR(
         optimizer, T_max=len(data_loader) * config["epochs"], eta_min=1e-6
@@ -108,8 +108,8 @@ def main():
             print("--- Kết thúc warm-up. Unfreeze backbone và điều chỉnh LR groups ---")
             model.module.prepare_for_finetuning_contrastive()  # <-- unfreeze all
             optimizer = optim.AdamW([
-                {"params": model.backbone.parameters(), "lr": config.get("backbone_lr", 1e-5)},  # <-- new low LR for backbone
-                {"params": model.CLprj.parameters(), "lr": config.get("head_lr", config["learning_rate"])},  # <-- higher LR for head
+                {"params": model.module.backbone.parameters(), "lr": config.get("backbone_lr", 1e-5)},  # <-- new low LR for backbone
+                {"params": model.module.CLprj.parameters(), "lr": config.get("head_lr", config["learning_rate"])},  # <-- higher LR for head
             ], weight_decay=config.get("weight_decay", 1e-6))
             remaining_iters = len(data_loader) * (config["epochs"] - epoch)
             scheduler = optim.lr_scheduler.CosineAnnealingLR(
