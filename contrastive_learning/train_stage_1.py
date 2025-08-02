@@ -89,7 +89,7 @@ def main():
     if torch.cuda.device_count() > 1:
         print(f"Sử dụng {torch.cuda.device_count()} GPU!")
         model = nn.DataParallel(model, device_ids=[0, 1])
-    model.prepare_for_finetuning_classifier(unfreeze_layers=0)
+    model.module.prepare_for_finetuning_classifier(unfreeze_layers=0)
     criterion = TripletLoss(temperature=config["temperature"], device=DEVICE)
     optimizer = optim.AdamW(
         model.CLprj.parameters(), lr=config["learning_rate"], weight_decay=1e-6
@@ -106,7 +106,7 @@ def main():
 
         if epoch == warmup_epochs:
             print("--- Kết thúc warm-up. Unfreeze backbone và điều chỉnh LR groups ---")
-            model.prepare_for_finetuning_contrastive()  # <-- unfreeze all
+            model.module.prepare_for_finetuning_contrastive()  # <-- unfreeze all
             optimizer = optim.AdamW([
                 {"params": model.backbone.parameters(), "lr": config.get("backbone_lr", 1e-5)},  # <-- new low LR for backbone
                 {"params": model.CLprj.parameters(), "lr": config.get("head_lr", config["learning_rate"])},  # <-- higher LR for head
