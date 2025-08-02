@@ -46,8 +46,8 @@ class FightDetector3DCNN(nn.Module):
         num_classes=2,
         hidden_size=512,
         dropout_prob=0.2,
-        cl_projection_hidden_dim=128,
-        cl_projection_out_dim=64,
+        cl_projection_hidden_dim=512,
+        cl_projection_out_dim=256,
         unfreeze_layer=10,
     ):
         super().__init__()
