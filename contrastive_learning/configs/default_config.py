@@ -26,6 +26,7 @@ STAGE1_CL_CONFIG = {
     "temperature": 0.07, # Tham số cho NT-Xent Loss
     "save_dir": f"{MODEL_SAVE_DIR}/stage_1_contrastive",
     "virtual_batch_size": 32,
+    "warmup_epochs": 5
 }
 
 # --- Giai đoạn 2: Supervised Fine-tuning ---

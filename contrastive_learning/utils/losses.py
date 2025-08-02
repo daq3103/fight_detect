@@ -59,7 +59,7 @@ class TripletLoss(nn.Module):
         self.device = device
         self.temperature = temperature
 
-    #     def forward(self, anchors, positives, negatives):
+        def forward(self, anchors, positives, negatives):
     #         """
     #         Tính triplet loss với cosine similarity
 
@@ -75,29 +75,29 @@ class TripletLoss(nn.Module):
     #         negatives = negatives.to(device)
 
     #         # Chuyển margin và temperature thành tensors trên device
-    #         margin_t = torch.tensor(self.margin, device=device)
-    #         temp_t   = torch.tensor(self.temperature, device=device)
+            margin_t = torch.tensor(self.margin, device=device)
+            temp_t   = torch.tensor(self.temperature, device=device)
 
     #         # Chuẩn hoá embeddings
     #         anchors   = F.normalize(anchors,   p=2, dim=1)
     #         positives = F.normalize(positives, p=2, dim=1)
     #         negatives = F.normalize(negatives, p=2, dim=1)
 
-    #         # Tính cosine similarities và chia temperature
-    #         pos_sim = torch.sum(anchors * positives, dim=1) / temp_t
-    #         neg_sim = torch.sum(anchors * negatives, dim=1) / temp_t
+            # Tính cosine similarities và chia temperature
+            pos_sim = torch.sum(anchors * positives, dim=1) / temp_t
+            neg_sim = torch.sum(anchors * negatives, dim=1) / temp_t
 
-    #         # Triplet hinge loss
-    #         losses = F.relu(neg_sim - pos_sim + margin_t)
+            # Triplet hinge loss
+            losses = F.relu(neg_sim - pos_sim + margin_t)
 
-    #         return losses.mean()
+            return losses.mean()
 
-    def forward(self, anchor, positive, negative, margin=0.5):
-        # device = self.device
-        # positives = positives.to(device)
-        # negatives = negatives.to(device)
-        pos_dist = F.pairwise_distance(anchor, positive, p=2)
-        neg_dist = F.pairwise_distance(anchor, negative, p=2)
+    # def forward(self, anchor, positive, negative, margin=0.5):
+    #     # device = self.device
+    #     # positives = positives.to(device)
+    #     # negatives = negatives.to(device)
+    #     pos_dist = F.pairwise_distance(anchor, positive, p=2)
+    #     neg_dist = F.pairwise_distance(anchor, negative, p=2)
 
-        loss = F.relu(pos_dist - neg_dist + margin).mean()
-        return loss
+    #     loss = F.relu(pos_dist - neg_dist + margin).mean()
+    #     return loss

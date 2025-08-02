@@ -144,25 +144,85 @@ class SemanticContrastiveDataset(Dataset):
     def __len__(self):
         return len(self.samples)
 
+    # def __getitem__(self, idx):
+    #     # Anchor video
+    #     anchor = self.samples[idx]
+    #     anchor_frames = self._load_and_transform(anchor['path'])
+        
+    #     # Tạo positive pair: Cùng lớp nhưng khác video
+    #     pos_idx = self._get_positive_index(idx, anchor['class'])
+    #     pos_frames = self._load_and_transform(self.samples[pos_idx]['path'])
+        
+    #     # Tạo negative pair: Khác lớp
+    #     neg_idx = self._get_negative_index(anchor['class'])
+    #     neg_frames = self._load_and_transform(self.samples[neg_idx]['path'])
+        
+    #     return {
+    #         'anchor': anchor_frames,
+    #         'positive': pos_frames,
+    #         'negative': neg_frames,
+    #         'class': anchor['class']
+    #     }
+
     def __getitem__(self, idx):
-        # Anchor video
-        anchor = self.samples[idx]
-        anchor_frames = self._load_and_transform(anchor['path'])
+        # 1. Lấy thông tin video anchor
+        anchor_info = self.samples[idx]
         
-        # Tạo positive pair: Cùng lớp nhưng khác video
-        pos_idx = self._get_positive_index(idx, anchor['class'])
-        pos_frames = self._load_and_transform(self.samples[pos_idx]['path'])
+        # 2. Tải frames của video anchor MỘT LẦN
+        # Tạm thời chưa transform ở bước này
+        frames = frames_extraction(
+            anchor_info['path'], 
+            self.image_height, 
+            self.image_width, 
+            self.sequence_length
+        )
         
-        # Tạo negative pair: Khác lớp
-        neg_idx = self._get_negative_index(anchor['class'])
-        neg_frames = self._load_and_transform(self.samples[neg_idx]['path'])
+        # Kiểm tra nếu tải video lỗi
+        if frames is None:
+            # Ta sẽ lọc các sample None này trong collate_fn
+            return None
+
+        frames_tensor = torch.from_numpy(frames).permute(0, 3, 1, 2).float()
+
+        # 3. Tạo positive pair bằng cách augment 2 lần
+        # Đây là thay đổi cốt lõi!
+        if self.transform:
+            anchor_frames = self.transform(frames_tensor)
+            positive_frames = self.transform(frames_tensor)
+        else:
+            anchor_frames = frames_tensor
+            positive_frames = frames_tensor
         
+        # 4. Lấy negative từ một lớp khác (giữ nguyên logic cũ)
+        neg_idx = self._get_negative_index(anchor_info['class'])
+        # Cần một vòng lặp phòng trường hợp video negative bị lỗi
+        neg_frames = None
+        while neg_frames is None:
+            neg_frames = self._load_and_transform(self.samples[neg_idx]['path']) # Dùng lại hàm cũ
+            if neg_frames is None:
+                neg_idx = self._get_negative_index(anchor_info['class'])
+
         return {
             'anchor': anchor_frames,
-            'positive': pos_frames,
+            'positive': positive_frames,
             'negative': neg_frames,
-            'class': anchor['class']
+            'class': anchor_info['class']
         }
+    
+    # Hàm _load_and_transform giờ chỉ cần cho negative
+    def _load_and_transform(self, video_path):
+        frames = frames_extraction(
+            video_path, 
+            self.image_height, 
+            self.image_width, 
+            self.sequence_length
+        )
+        if frames is None:
+            return None
+        frames_tensor = torch.from_numpy(frames).permute(0, 3, 1, 2).float()
+        if self.transform:
+            frames_tensor = self.transform(frames_tensor)
+        return frames_tensor
 
     def _load_and_transform(self, video_path):
         """Trích xuất frames và áp dụng transform"""
