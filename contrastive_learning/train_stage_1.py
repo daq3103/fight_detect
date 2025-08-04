@@ -152,7 +152,7 @@ def main():
         if epoch_loss < best_loss:
             best_loss = epoch_loss
             torch.save(
-                model.state_dict(), os.path.join(config["save_dir"], "best_model.pt")
+                model.module.state_dict(), os.path.join(config["save_dir"], "best_model.pt")
             )
             print(f"🎉 Model mới tốt nhất được lưu với loss: {best_loss:.4f}")
 

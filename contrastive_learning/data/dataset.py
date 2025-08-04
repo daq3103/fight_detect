@@ -272,3 +272,9 @@ def semantic_collate_fn(batch):
         'negatives': negatives,
         'classes': classes
     }
+
+
+def collate_fn(batch):
+
+    batch = list(filter(lambda x: x is not None, batch))
+    return torch.utils.data.dataloader.default_collate(batch) if batch else (torch.tensor([]), torch.tensor([]))

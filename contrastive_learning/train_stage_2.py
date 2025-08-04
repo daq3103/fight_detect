@@ -1,17 +1,11 @@
 # train_stage_2_supervised.py
-# (File này gần như giống với file train_stage_2.py ở phiên bản trước,
-# chỉ thay đổi tên config và logic prepare model cho rõ ràng)
-
 import torch
 import torch.nn as nn
 import torch.optim as optim
 from torch.utils.data import DataLoader
-
-# Thay dataset cũ bằng SupervisedVideoDataset
 from data.dataset import SupervisedVideoDataset, collate_fn 
 from models.model_3dcnn import FightDetector3DCNN
-from utils.trainer import SupervisedTrainer # Trainer này vẫn dùng tốt
-# Thay đổi config import
+from utils.trainer import SupervisedTrainer 
 from configs.default_config import STAGE2_SUPERVISED_CONFIG as config, DEVICE, CLASSES_LIST, SEQUENCE_LENGTH, IMAGE_HEIGHT, IMAGE_WIDTH
 
 def main():
