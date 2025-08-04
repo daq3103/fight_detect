@@ -24,7 +24,7 @@ STAGE1_CL_CONFIG = {
     "batch_size": 16, # Batch size lớn hơn tốt cho CL
     "learning_rate": 5e-5,
     "temperature": 0.07, # Tham số cho NT-Xent Loss
-    "save_dir": f"{MODEL_SAVE_DIR}/stage_1_contrastive",
+    "save_dir": f"./weights/best_CL_model.pt",
     "virtual_batch_size": 128,
     "warmup_epochs": 5
 }
@@ -32,7 +32,7 @@ STAGE1_CL_CONFIG = {
 # --- Giai đoạn 2: Supervised Fine-tuning ---
 STAGE2_SUPERVISED_CONFIG = {
     "data_path": "/kaggle/input/rwf2000/RWF-2000",
-    "stage1_best_model_path": f"{STAGE1_CL_CONFIG['save_dir']}/best_model.pt",
+    "stage1_best_model_path": f"./weights/best_CL_model.pt",
     "epochs": 15,
     "batch_size": 16,
     "learning_rate": 1e-4,
