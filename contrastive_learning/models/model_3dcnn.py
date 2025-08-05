@@ -15,11 +15,11 @@ class ClassifierProjection(nn.Module):
 
         self.classifier = nn.Sequential(
             nn.Dropout(dropout_prob),
-            nn.Linear(in_features, 512),
-            nn.LayerNorm(512),
+            nn.Linear(in_features, 256),
+            nn.LayerNorm(256),
             nn.ReLU(inplace=True),
             nn.Dropout(dropout_prob),
-            nn.Linear(512, num_classes),
+            nn.Linear(256, num_classes),
         )
 
     def forward(self, x: torch.Tensor):
