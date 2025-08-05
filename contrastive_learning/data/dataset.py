@@ -273,8 +273,12 @@ def semantic_collate_fn(batch):
         'classes': classes
     }
 
-
 def collate_fn(batch):
-
     batch = list(filter(lambda x: x is not None, batch))
-    return torch.utils.data.dataloader.default_collate(batch) if batch else (torch.tensor([]), torch.tensor([]))
+    if not batch:
+        return None 
+    try:
+        return torch.utils.data.dataloader.default_collate(batch)
+    except Exception as e:
+        print(f"Lỗi khi gom batch: {e}. Bỏ qua batch này.")
+        return None 

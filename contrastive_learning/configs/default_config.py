@@ -31,8 +31,8 @@ STAGE1_CL_CONFIG = {
 
 # --- Giai đoạn 2: Supervised Fine-tuning ---
 STAGE2_SUPERVISED_CONFIG = {
-    "data_path": "/kaggle/input/violencedataset/mix_data",
-    "stage1_best_model_path": f"/kaggle/input/best_cl_model/pytorch/default/1/best_CL_model.pt",
+    "data_path": "/kaggle/input/rwf2000/RWF-2000",
+    "stage1_best_model_path": f"{STAGE1_CL_CONFIG['save_dir']}/best_model.pt",
     "epochs": 15,
     "batch_size": 16,
     "learning_rate": 1e-4,
