@@ -38,7 +38,7 @@ def main():
         sequence_length=SEQUENCE_LENGTH,
         image_height=IMAGE_HEIGHT,
         image_width=IMAGE_WIDTH,
-        transform=transform
+        # transform=transform
     )
     
     val_dataset = SupervisedVideoDataset(
