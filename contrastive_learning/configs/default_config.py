@@ -10,7 +10,8 @@ MODEL_SAVE_DIR = "./checkpoints"
 # --- Cấu hình tiền xử lý & DataLoader ---
 IMAGE_HEIGHT = 112
 IMAGE_WIDTH = 112
-SEQUENCE_LENGTH = 16
+SEQUENCE_LENGTH_S1 = 128
+SEQUENCE_LENGTH_S2 = 16
 
 # --- Đặc điểm của phân phối dữ liệu Pretrain --- 
 
