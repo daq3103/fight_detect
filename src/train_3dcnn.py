@@ -51,8 +51,8 @@ def main():
     # 4. Optimizer
     if args.optimizer == "SGD":
         optimizer = torch.optim.SGD(model.parameters(), lr=args.learning_rate)
-    elif args.optimizer == "Adam":
-        optimizer = torch.optim.Adam(model.parameters(), lr=args.learning_rate)
+    elif args.optimizer == "AdamW":
+        optimizer = torch.optim.adamw(model.parameters(), lr=args.learning_rate)
     else:
         raise ValueError(f"Optimizer {args.optimizer} not supported.")
 
