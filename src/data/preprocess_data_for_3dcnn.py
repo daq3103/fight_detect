@@ -84,7 +84,7 @@ def main():
 
     # In ra các tham số sẽ được sử dụng
     print("Bắt đầu quá trình tiền xử lý với các tham số sau:")
-    print(f"Thư mục video gốc: {args.data_dir}")
+    print(f"Thư mục video gốc: {args.data_raw_dir}")
     print(f"Thư mục đầu ra: {args.data_preprocessed_dir}")
     print(f"Kích thước ảnh (H x W): {args.image_height} x {args.image_width}")
     print(f"Số lượng frames mỗi video: {args.sequence_length}")
