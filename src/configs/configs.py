@@ -30,12 +30,12 @@ def parse_arguments():
     parser.add_argument('--lr_reduce_verbose', type=bool, default=True, help='Print message on LR reduction.')
 
     # Data parameters (Updated)/kaggle/input/real-life-violence-situations-dataset/Real Life Violence Dataset
-    parser.add_argument('--data_raw_dir', type=str, default='/kaggle/input/real-life-violence-situations-dataset/Real Life Violence Dataset', help='Root directory of the dataset.')
+    parser.add_argument('--data_raw_dir', type=str, default='/kaggle/input/violencedataset/mix_data', help='Root directory of the dataset.')
     parser.add_argument('--data_preprocessed_dir', type=str, default='/kaggle/working/Processed_Data', help='Root directory of the dataset-preprocessed.')
     parser.add_argument('--image_height', type=int, default=64, help='Height of video frames after resizing.')
     parser.add_argument('--image_width', type=int, default=64, help='Width of video frames after resizing.')
     parser.add_argument('--sequence_length', type=int, default=16, help='Number of frames to extract per video.')
-    parser.add_argument('--classes_list', nargs='+', default=["NonViolence", "Violence"], help='List of class names.')
+    parser.add_argument('--classes_list', nargs='+', default=["NonFight", "Fight"], help='List of class names.')
     parser.add_argument('--val_split', type=float, default=0.2, help='Validation split ratio.') # train_test_split in Keras was 0.1, now using val_split for random_split
 
     # ST-GCN
