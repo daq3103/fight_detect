@@ -52,8 +52,8 @@ class FightDetector3DCNN(nn.Module):
     ):
         super().__init__()
 
-        weights = R2Plus1D_18_Weights.KINETICS400_V1
-        self.backbone = r2plus1d_18(weights=weights)
+        # weights = R2Plus1D_18_Weights.KINETICS400_V1
+        self.backbone = r2plus1d_18(weights=None)
 
         in_features = self.backbone.fc.in_features
         self.backbone.fc = nn.Identity()
