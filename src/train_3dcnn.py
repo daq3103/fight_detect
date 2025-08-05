@@ -10,8 +10,8 @@ from models.model_3dcnn_r2plus1d import FightDetection3DCNN
 from data.datasets import VideoDataset  
 
 from utils.callbacks import EarlyStopping
-from trainer.trainer import Trainer, Trainer3DCNN
-from utils.viz import plot_metric, plot_combined_metrics 
+from trainer.trainer import Trainer3DCNN
+from utils.viz import plot_combined_metrics 
 
 
 def set_seed(seed):
