@@ -23,17 +23,13 @@ def main():
     # 1. Augmentation mạnh cho Contrastive Learning
     transform = T.Compose(
         [
-            T.Lambda(
-                lambda vid: temporal_crop_fn(vid, 0.8)
-            ),  # Cái này có thể giữ lại vì nó là logic đặc thù
-            T.RandomHorizontalFlip(p=0.5),  # v2 có sẵn
-            T.GaussianBlur(kernel_size=(5, 9)),  # v2 có sẵn
-            # T.RandomResizedCrop(size=(224, 224), scale=(0.8, 1.0)), # v2 có sẵn
-            # ColorJitter áp dụng cho cả video thay vì từng frame
-            T.ColorJitter(brightness=0.2, contrast=0.2, saturation=0.2, hue=0.1),
+            T.RandomHorizontalFlip(p=0.3),
+            T.ColorJitter(brightness=0.1, contrast=0.1),
+            T.Lambda(lambda vid: temporal_crop_fn(vid, 0.9)),
+            
         ]
     )
-
+    
         
     # 1. DataLoader
     train_dataset = SupervisedVideoDataset(
