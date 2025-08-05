@@ -23,8 +23,8 @@ def main():
     # 1. Augmentation mạnh cho Contrastive Learning
     transform = T.Compose(
         [
-            T.RandomHorizontalFlip(p=0.3),
-            # T.ColorJitter(brightness=0.1, contrast=0.1),
+            # T.RandomHorizontalFlip(p=0.3),
+            T.ColorJitter(brightness=0.1, contrast=0.1),
             # T.Lambda(lambda vid: temporal_crop_fn(vid, 0.9)),
             
         ]
