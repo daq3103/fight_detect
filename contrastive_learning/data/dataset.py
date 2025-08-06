@@ -5,7 +5,6 @@ import os
 import glob
 from data.data_utils import frames_extraction
 import random
-
 class SupervisedVideoDataset(Dataset):
     def __init__(self, data_dir, classes_list, sequence_length, image_height, image_width, transform=None):
         self.data_dir = data_dir
@@ -15,31 +14,41 @@ class SupervisedVideoDataset(Dataset):
         self.image_width = image_width
         self.transform = transform
         
+        # Load samples từ các tệp .npy thay vì video
         self.samples = self._load_samples()
 
     def _load_samples(self):
         samples = []
         for class_index, class_name in enumerate(self.classes_list):
             class_path = os.path.join(self.data_dir, class_name)
-            # Hỗ trợ nhiều định dạng video
-            for ext in ("*.avi", "*.mp4"):
-                video_paths = glob.glob(os.path.join(class_path, ext))
-                for video_path in video_paths:
-                    samples.append((video_path, class_index))
+            # Quét các tệp .npy
+            npy_paths = glob.glob(os.path.join(class_path, "*.npy"))
+            for npy_path in npy_paths:
+                samples.append((npy_path, class_index))
         return samples
 
     def __len__(self):
         return len(self.samples)
 
     def __getitem__(self, idx):
-        video_path, label = self.samples[idx]
+        npy_path, label = self.samples[idx]
         
-        # Trích xuất frames từ video
-        frames = frames_extraction(video_path, self.image_height, self.image_width, self.sequence_length)
-        
-        # Nếu video không hợp lệ, trả về None
-        if frames is None:
-            # DataLoader sẽ bỏ qua mẫu này nếu collate_fn được cấu hình đúng
+        # Tải frames từ tệp .npy đã được xử lý
+        try:
+            frames = np.load(npy_path)
+            # Kiểm tra định dạng
+            if frames.shape[0] < self.sequence_length:
+                 # Nếu clip quá ngắn, có thể bỏ qua hoặc padding
+                 return None 
+            
+            # Chọn ngẫu nhiên một sub-sequence nếu clip dài hơn
+            T0 = frames.shape[0]
+            if T0 > self.sequence_length:
+                start = random.randint(0, T0 - self.sequence_length)
+                frames = frames[start : start + self.sequence_length]
+
+        except Exception as e:
+            print(f"Lỗi khi tải tệp {npy_path}: {e}")
             return None
 
         # Chuyển đổi (Seq, H, W, C) -> (Seq, C, H, W)
