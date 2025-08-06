@@ -177,6 +177,9 @@ def main():
         torch.load(config["stage1_best_model_path"], map_location=DEVICE), strict=False
     )
 
+    if torch.cuda.device_count() > 1:
+        print(f"Sử dụng {torch.cuda.device_count()} GPU!")
+        model = nn.DataParallel(model, device_ids=[0, 1])
     # Chuẩn bị model cho Giai đoạn 2: Đóng băng backbone
     # model.prepare_for_finetuning_classifier()
 
@@ -184,10 +187,10 @@ def main():
     # Chỉ train các tham số của classifier_head
     # 4. Optimizer với LEARNING RATE PHÂN TẦNG và WEIGHT DECAY
     backbone_params = [
-        p for n, p in model.backbone.named_parameters() if p.requires_grad
+        p for n, p in model.module.backbone.named_parameters() if p.requires_grad
     ]
     classifier_params = [
-        p for n, p in model.classifier.named_parameters() if p.requires_grad
+        p for n, p in model.module.classifier.named_parameters() if p.requires_grad
     ]
 
     param_groups = [
@@ -226,7 +229,7 @@ def main():
     )
     # 4. Trainer
     trainer = SupervisedTrainer(  # SupervisedTrainer vẫn dùng lại được
-        model=model,
+        model=model.module,
         criterion=criterion,
         optimizer=optimizer,
         device=DEVICE,
