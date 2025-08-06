@@ -13,7 +13,7 @@ class SupervisedTrainer:
         self.model = model.to(device)
         self.criterion = criterion
         self.optimizer = optimizer
-        self.device = device
+        self.device = torch.device(device)
         self.train_dataloader = train_dataloader
         self.val_dataloader = val_dataloader
         self.lr_scheduler = lr_scheduler
