@@ -51,7 +51,7 @@ def parse_arguments():
 
     # Other
     parser.add_argument('--seed', type=int, default=42, help='Random seed for reproducibility.')
-    parser.add_argument('--model_save_path', type=str, default='best_mobibilstm_model.pt', help='Path to save the best model.')
+    parser.add_argument('--model_save_path', type=str, default='weights/best_model.pt', help='Path to save the best model.')
 
     args = parser.parse_args()
     return args
