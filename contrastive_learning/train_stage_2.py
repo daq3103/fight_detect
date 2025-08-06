@@ -149,7 +149,7 @@ def main():
         sequence_length=SEQUENCE_LENGTH_S2,
         image_height=IMAGE_HEIGHT,
         image_width=IMAGE_WIDTH,
-        transform=val_transform,
+        # transform=val_transform,
     )
 
     train_loader = DataLoader(
@@ -158,7 +158,7 @@ def main():
         shuffle=True,
         num_workers=4,
         pin_memory=True,
-        collate_fn=collate_fn,
+        # collate_fn=collate_fn,
     )
     val_loader = DataLoader(
         val_dataset,
