@@ -6,6 +6,7 @@ from torch.utils.data import DataLoader
 from data.dataset import SupervisedVideoDataset, collate_fn 
 from models.model_3dcnn import FightDetector3DCNN
 from utils.trainer import SupervisedTrainer 
+from utils.callbacks import EarlyStopping
 from torchvision.transforms import v2 as T
 import random
 from configs.default_config import STAGE2_SUPERVISED_CONFIG as config, DEVICE, CLASSES_LIST, IMAGE_HEIGHT, IMAGE_WIDTH
@@ -92,6 +93,19 @@ def main():
         classes_list=CLASSES_LIST,
         sequence_length=SEQUENCE_LENGTH_S2
     )
+    #0. Augmentation
+    transform = T.Compose([
+        T.ToDtype(torch.float32, scale=True), # Đảm bảo video là float tensor và scale về [0, 1]
+        T.Normalize(mean=[0.43216, 0.394666, 0.37645], std=[0.22803, 0.22145, 0.216989]), # Dùng mean/std của Kinetics
+        T.RandomResizedCrop(size=(IMAGE_HEIGHT, IMAGE_WIDTH), scale=(0.8, 1.0), ratio=(0.9, 1.1)),
+        T.RandomHorizontalFlip(p=0.5),
+        T.ColorJitter(brightness=0.4, contrast=0.4, saturation=0.4, hue=0.1),
+    ])
+    
+    val_transform = T.Compose([
+        T.ToDtype(torch.float32, scale=True),
+        T.Normalize(mean=[0.43216, 0.394666, 0.37645], std=[0.22803, 0.22145, 0.216989]),
+    ])
 
     # 1. DataLoader
     # Vẫn sử dụng đường dẫn dữ liệu đã tiền xử lý
@@ -101,6 +115,7 @@ def main():
         sequence_length=SEQUENCE_LENGTH_S2,
         image_height=IMAGE_HEIGHT,
         image_width=IMAGE_WIDTH,
+        transform=transform,
     )
 
     val_dataset = SupervisedVideoDataset(
@@ -108,7 +123,8 @@ def main():
         classes_list=CLASSES_LIST,
         sequence_length=SEQUENCE_LENGTH_S2,
         image_height=IMAGE_HEIGHT,
-        image_width=IMAGE_WIDTH
+        image_width=IMAGE_WIDTH,
+        transform=val_transform,
     )
     
     train_loader = DataLoader(train_dataset, batch_size=config['batch_size'], shuffle=True, num_workers=4, pin_memory=True, collate_fn=collate_fn)
@@ -121,15 +137,32 @@ def main():
     model.load_state_dict(torch.load(config['stage1_best_model_path'], map_location=DEVICE), strict=False)
     
     # Chuẩn bị model cho Giai đoạn 2: Đóng băng backbone
-    model.prepare_for_finetuning_classifier()
+    # model.prepare_for_finetuning_classifier()
 
     # 3. Optimizer, Loss, Scheduler
     # Chỉ train các tham số của classifier_head
-    params = filter(lambda p: p.requires_grad, model.parameters())
-    optimizer = optim.AdamW(params, lr=config['learning_rate'])
-    criterion = nn.CrossEntropyLoss()
-    scheduler = optim.lr_scheduler.ReduceLROnPlateau(optimizer, 'max', factor=0.5, patience=3)
+    # 4. Optimizer với LEARNING RATE PHÂN TẦNG và WEIGHT DECAY
+    backbone_params = [p for n, p in model.backbone.named_parameters() if p.requires_grad]
+    classifier_params = [p for n, p in model.classifier.named_parameters() if p.requires_grad]
+    
+    param_groups = [
+        {'params': backbone_params, 'lr': config['learning_rate_backbone']}, # LR rất nhỏ cho backbone
+        {'params': classifier_params, 'lr': config['learning_rate_head']}   # LR lớn hơn cho head
+    ]
 
+    optimizer = optim.AdamW(param_groups, weight_decay=config['weight_decay'])
+    criterion = nn.CrossEntropyLoss()
+    scheduler = optim.lr_scheduler.ReduceLROnPlateau(optimizer, 'max', factor=0.5, patience=3, verbose=True)
+
+    # 5. Callbacks với EARLY STOPPING
+    early_stopping = EarlyStopping(
+        patience=config['es_patience'],
+        verbose=True,
+        delta=0,
+        path=config['model_save_path'],
+        monitor='val_acc',
+        mode='max'
+    )
     # 4. Trainer
     trainer = SupervisedTrainer( # SupervisedTrainer vẫn dùng lại được
         model=model,
@@ -139,6 +172,7 @@ def main():
         train_dataloader=train_loader,
         val_dataloader=val_loader,
         lr_scheduler=scheduler,
+        early_stopping=early_stopping,
         config=config,
     )
     

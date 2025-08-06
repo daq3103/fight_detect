@@ -5,27 +5,16 @@ from torchvision.models.video import r2plus1d_18, R2Plus1D_18_Weights
 
 
 class ClassifierProjection(nn.Module):
-    def __init__(
-        self,
-        num_classes=2,
-        in_features=512,
-        dropout_prob=0.25,
-    ):
+    """
+    KIẾN TRÚC HEAD ĐÃ ĐƯỢC SỬA LẠI: Đơn giản, hiệu quả, không có lỗi.
+    """
+    def __init__(self, num_classes=2, in_features=512, dropout_prob=0.5): # Tăng dropout
         super().__init__()
-
         self.classifier = nn.Sequential(
-            nn.Dropout(dropout_prob),
             nn.Linear(in_features, 512),
-            nn.LayerNorm(512),
-            nn.ReLU(),
-            nn.Dropout(dropout_prob),
-            nn.Linear(512, 256),
-            nn.LayerNorm(256),
-            nn.ReLU(),
-            nn.Dropout(dropout_prob),
-            nn.Linear(256, 128),
-            nn.ReLU(),
-            nn.Linear(128, num_classes),
+            nn.ReLU(inplace=True),
+            nn.Dropout(p=dropout_prob),
+            nn.Linear(512, num_classes),
         )
 
     def forward(self, x: torch.Tensor):
@@ -120,29 +109,29 @@ class FightDetector3DCNN(nn.Module):
         logits = self.classifier(features)
         return logits
 
-    def __freeze_backbone(self):
-        for param in self.backbone.parameters():
-            param.requires_grad = False
+    # def __freeze_backbone(self):
+    #     for param in self.backbone.parameters():
+    #         param.requires_grad = False
 
-    def __unfreeze_backbone(self):
-        for param in self.backbone.parameters():
-            param.requires_grad = True
+    # def __unfreeze_backbone(self):
+    #     for param in self.backbone.parameters():
+    #         param.requires_grad = True
 
-    def __unfreeze_top_layers(self, num_layers: int):
-        # Unfreeze theo block thay vì toàn bộ
-        layers_to_unfreeze = [
-            self.backbone.layer3,
-            self.backbone.layer4,
-            self.backbone.avgpool
-        ][-num_layers:]
+    # def __unfreeze_top_layers(self, num_layers: int):
+    #     # Unfreeze theo block thay vì toàn bộ
+    #     layers_to_unfreeze = [
+    #         self.backbone.layer3,
+    #         self.backbone.layer4,
+    #         self.backbone.avgpool
+    #     ][-num_layers:]
         
-        for layer in layers_to_unfreeze:
-            for param in layer.parameters():
-                param.requires_grad = True
+    #     for layer in layers_to_unfreeze:
+    #         for param in layer.parameters():
+    #             param.requires_grad = True
 
-    def prepare_for_finetuning_classifier(self, unfreeze_layers=3):
-        self.__freeze_backbone()
-        self.__unfreeze_top_layers(num_layers=unfreeze_layers)
+    # def prepare_for_finetuning_classifier(self, unfreeze_layers=3):
+    #     self.__freeze_backbone()
+    #     self.__unfreeze_top_layers(num_layers=unfreeze_layers)
 
-    def prepare_for_finetuning_contrastive(self):
-        self.__unfreeze_backbone()
+    # def prepare_for_finetuning_contrastive(self):
+    #     self.__unfreeze_backbone()
