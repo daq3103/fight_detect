@@ -43,4 +43,5 @@ STAGE2_SUPERVISED_CONFIG = {
     "es_patience": 7,
     "dropout_prob": 0.5,
     "save_dir": f"{MODEL_SAVE_DIR}/stage_2_supervised",
+    "model_save_path": f"{MODEL_SAVE_DIR}/stage_2_supervised",
 }
