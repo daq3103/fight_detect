@@ -8,8 +8,8 @@ from models.model_3dcnn import FightDetector3DCNN
 from utils.trainer import SupervisedTrainer 
 from torchvision.transforms import v2 as T
 import random
-from configs.default_config import STAGE2_SUPERVISED_CONFIG as config, DEVICE, CLASSES_LIST, SEQUENCE_LENGTH, IMAGE_HEIGHT, IMAGE_WIDTH
-
+from configs.default_config import STAGE2_SUPERVISED_CONFIG as config, DEVICE, CLASSES_LIST, IMAGE_HEIGHT, IMAGE_WIDTH
+from configs.default_config import SEQUENCE_LENGTH_S2
 def temporal_crop_fn(vid, ratio=0.8):
     T0 = vid.size(0)
     L = max(1, int(T0 * ratio))
@@ -35,16 +35,16 @@ def main():
     train_dataset = SupervisedVideoDataset(
         data_dir=f"{config['data_path']}/train",
         classes_list=CLASSES_LIST,
-        sequence_length=SEQUENCE_LENGTH,
+        sequence_length=SEQUENCE_LENGTH_S2,
         image_height=IMAGE_HEIGHT,
         image_width=IMAGE_WIDTH,
         # transform=transform
     )
-    
+
     val_dataset = SupervisedVideoDataset(
         data_dir=f"{config['data_path']}/val",
         classes_list=CLASSES_LIST,
-        sequence_length=SEQUENCE_LENGTH,
+        sequence_length=SEQUENCE_LENGTH_S2,
         image_height=IMAGE_HEIGHT,
         image_width=IMAGE_WIDTH
     )
