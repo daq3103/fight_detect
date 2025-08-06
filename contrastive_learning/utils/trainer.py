@@ -38,7 +38,7 @@ class SupervisedTrainer:
                 continue
             inputs, labels = inputs.to(self.device), labels.to(self.device)
 
-            with autocast(self.device):
+            with autocast(device_type=self.device, enabled=(self.device == 'cuda')):
                 outputs = self.model(inputs)
                 loss = self.criterion(outputs, labels)
             
