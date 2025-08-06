@@ -128,7 +128,7 @@ def main():
     params = filter(lambda p: p.requires_grad, model.parameters())
     optimizer = optim.AdamW(params, lr=config['learning_rate'])
     criterion = nn.CrossEntropyLoss()
-    scheduler = optim.lr_scheduler.ReduceLROnPlateau(optimizer, 'max', factor=0.5, patience=3, verbose=True)
+    scheduler = optim.lr_scheduler.ReduceLROnPlateau(optimizer, 'max', factor=0.5, patience=3)
 
     # 4. Trainer
     trainer = SupervisedTrainer( # SupervisedTrainer vẫn dùng lại được
