@@ -232,7 +232,7 @@ def main():
         model=model,
         criterion=criterion,
         optimizer=optimizer,
-        device=None,
+        device=DEVICE,
         train_dataloader=train_loader,
         val_dataloader=val_loader,
         lr_scheduler=scheduler,
