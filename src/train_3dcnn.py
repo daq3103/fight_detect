@@ -98,18 +98,24 @@ def main():
     print(f"Số mẫu huấn luyện: {len(train_dataset)}")
     print(f"Số mẫu validation: {len(val_dataset)}")
 
+    model_dir = os.path.dirname(args.model_save_path)
+    # Nếu đường dẫn không rỗng và thư mục chưa tồn tại, hãy tạo nó
+    if model_dir and not os.path.exists(model_dir):
+        os.makedirs(model_dir)
+
+
     # 6. Callbacks
     callbacks = []
 
-    early_stopping_callback = EarlyStopping(
-        patience=args.es_patience,
-        verbose=args.es_verbose,
-        delta=args.es_delta,
-        path=args.model_save_path,
-        monitor=args.es_monitor,
-        restore_best_weights=args.es_restore_best_weights,
-    )
-    callbacks.append(early_stopping_callback)
+    # early_stopping_callback = EarlyStopping(
+    #     patience=args.es_patience,
+    #     verbose=args.es_verbose,
+    #     delta=args.es_delta,
+    #     path=args.model_save_path,
+    #     monitor=args.es_monitor,
+    #     restore_best_weights=args.es_restore_best_weights,
+    # )
+    # callbacks.append(early_stopping_callback)
 
     reduce_lr_scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(
         optimizer=optimizer,
@@ -133,14 +139,14 @@ def main():
         model_save_path=args.model_save_path,
     )
 
-    MobBiLSTM_model_history = trainer.train(num_epochs=args.epochs)
+    model_3dcnn = trainer.train(num_epochs=args.epochs)
 
     print("\nLịch sử huấn luyện cuối cùng:")
-    for key, values in MobBiLSTM_model_history.items():
+    for key, values in model_3dcnn.items():
         print(f"{key}: {values}")
 
     # 8. Plotting the results
-    plot_combined_metrics(MobBiLSTM_model_history)
+    plot_combined_metrics(model_3dcnn)
 
 
 if __name__ == "__main__":
