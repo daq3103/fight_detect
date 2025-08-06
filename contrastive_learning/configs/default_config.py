@@ -35,7 +35,7 @@ STAGE2_SUPERVISED_CONFIG = {
     "data_path": "/kaggle/input/bad-trimmed-dataset/bad-trimmed-dataset",
     "stage1_best_model_path": f"/kaggle/input/best_cl_model/pytorch/default/1/best_CL_model.pt",
     "epochs": 50,
-    "batch_size": 32,
+    "batch_size": 64,
     "learning_rate_backbone": 1e-5,
     "learning_rate_head": 1e-4,
     "unfreeze_layers": 0,  # Chỉ train classifier, không unfreeze backbone
