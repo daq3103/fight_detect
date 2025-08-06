@@ -23,7 +23,7 @@ class SupervisedTrainer:
         os.makedirs(self.save_dir, exist_ok=True)
         self.writer = SummaryWriter(log_dir=os.path.join(self.save_dir, 'logs'))
         
-        self.scaler = GradScaler('cuda', enabled=(device == 'cuda'))
+        self.scaler = GradScaler(enabled=(self.device.type == 'cuda'))
         self.best_val_acc = 0.0
 
     def _train_epoch(self):
@@ -38,7 +38,7 @@ class SupervisedTrainer:
                 continue
             inputs, labels = inputs.to(self.device), labels.to(self.device)
 
-            with autocast(enabled=(self.device == 'cuda')):
+            with autocast(enabled=(self.device.type == 'cuda')):
                 outputs = self.model(inputs)
                 loss = self.criterion(outputs, labels)
             
