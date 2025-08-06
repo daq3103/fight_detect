@@ -5,6 +5,8 @@ import os
 import glob
 from data.data_utils import frames_extraction
 import random
+import numpy as np
+
 class SupervisedVideoDataset(Dataset):
     def __init__(self, data_dir, classes_list, sequence_length, image_height, image_width, transform=None):
         self.data_dir = data_dir
@@ -85,6 +87,7 @@ class ContrastiveVideoDataset(Dataset):
         return len(self.samples)
 
     def __getitem__(self, idx):
+        import numpy as np
         video_path = self.samples[idx]
         frames = frames_extraction(video_path, self.image_height, self.image_width, self.sequence_length)
         
@@ -283,11 +286,13 @@ def semantic_collate_fn(batch):
     }
 
 def collate_fn(batch):
-    batch = list(filter(lambda x: x is not None, batch))
+    batch = [item for item in batch if item is not None]
+
     if not batch:
-        return None 
+        return () # Thay đổi này
+
     try:
         return torch.utils.data.dataloader.default_collate(batch)
     except Exception as e:
         print(f"Lỗi khi gom batch: {e}. Bỏ qua batch này.")
-        return None 
+        return () # Và thay đổi này

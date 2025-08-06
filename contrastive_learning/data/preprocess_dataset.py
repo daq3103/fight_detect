@@ -5,6 +5,7 @@ import numpy as np
 from tqdm import tqdm
 from data.data_utils import frames_extraction
 from configs.default_config import CLASSES_LIST, IMAGE_HEIGHT, IMAGE_WIDTH
+import numpy as np
 
 def pre_process_and_save(data_dir, output_dir, classes_list, sequence_length):
     """
