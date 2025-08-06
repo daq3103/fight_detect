@@ -139,14 +139,14 @@ def main():
         model_save_path=args.model_save_path,
     )
 
-    MobBiLSTM_model_history = trainer.train(num_epochs=args.epochs)
+    model_3dcnn = trainer.train(num_epochs=args.epochs)
 
     print("\nLịch sử huấn luyện cuối cùng:")
-    for key, values in MobBiLSTM_model_history.items():
+    for key, values in model_3dcnn.items():
         print(f"{key}: {values}")
 
     # 8. Plotting the results
-    plot_combined_metrics(MobBiLSTM_model_history)
+    plot_combined_metrics(model_3dcnn)
 
 
 if __name__ == "__main__":
