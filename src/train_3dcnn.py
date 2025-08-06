@@ -107,15 +107,15 @@ def main():
     # 6. Callbacks
     callbacks = []
 
-    early_stopping_callback = EarlyStopping(
-        patience=args.es_patience,
-        verbose=args.es_verbose,
-        delta=args.es_delta,
-        path=args.model_save_path,
-        monitor=args.es_monitor,
-        restore_best_weights=args.es_restore_best_weights,
-    )
-    callbacks.append(early_stopping_callback)
+    # early_stopping_callback = EarlyStopping(
+    #     patience=args.es_patience,
+    #     verbose=args.es_verbose,
+    #     delta=args.es_delta,
+    #     path=args.model_save_path,
+    #     monitor=args.es_monitor,
+    #     restore_best_weights=args.es_restore_best_weights,
+    # )
+    # callbacks.append(early_stopping_callback)
 
     reduce_lr_scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(
         optimizer=optimizer,
