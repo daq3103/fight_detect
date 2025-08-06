@@ -115,11 +115,11 @@ def main():
             T.Normalize(
                 mean=[0.43216, 0.394666, 0.37645], std=[0.22803, 0.22145, 0.216989]
             ),  # Dùng mean/std của Kinetics
-            T.RandomResizedCrop(
-                size=(IMAGE_HEIGHT, IMAGE_WIDTH), scale=(0.8, 1.0), ratio=(0.9, 1.1)
-            ),
-            T.RandomHorizontalFlip(p=0.5),
-            T.ColorJitter(brightness=0.4, contrast=0.4, saturation=0.4, hue=0.1),
+            # T.RandomResizedCrop(
+            #     size=(IMAGE_HEIGHT, IMAGE_WIDTH), scale=(0.8, 1.0), ratio=(0.9, 1.1)
+            # ),
+            # T.RandomHorizontalFlip(p=0.5),
+            # T.ColorJitter(brightness=0.4, contrast=0.4, saturation=0.4, hue=0.1),
         ]
     )
 
@@ -149,7 +149,7 @@ def main():
         sequence_length=SEQUENCE_LENGTH_S2,
         image_height=IMAGE_HEIGHT,
         image_width=IMAGE_WIDTH,
-        # transform=val_transform,
+        transform=val_transform,
     )
 
     train_loader = DataLoader(
