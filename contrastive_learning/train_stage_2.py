@@ -68,17 +68,18 @@ def pre_process_and_save(data_dir, output_dir, classes_list, sequence_length):
         print(f"Dữ liệu tại {output_dir} đã được tiền xử lý trước đó.")
     
     return not is_processed_all # Trả về True nếu có tệp mới được xử lý
-
 def main():
     print("--- Bắt đầu Giai đoạn 2: Supervised Fine-tuning ---")
 
-    # Xác định đường dẫn cho dữ liệu đã được tiền xử lý
-    processed_data_path = f"{config['data_path']}_processed"
+    # Xác định đường dẫn cho dữ liệu đã được tiền xử lý.
+    # Thay đổi đường dẫn lưu trữ để trỏ đến thư mục làm việc của Kaggle.
+    # Thư mục /kaggle/working có quyền ghi.
+    processed_data_path = f"/kaggle/working/data_processed"
     train_processed_path = os.path.join(processed_data_path, 'train')
     val_processed_path = os.path.join(processed_data_path, 'val')
 
     # Bước 1: Tiền xử lý dữ liệu trước khi huấn luyện
-    # Lần chạy đầu tiên sẽ tạo tệp .npy, các lần sau sẽ bỏ qua
+    # ... (phần code này không cần thay đổi) ...
     pre_process_and_save(
         data_dir=os.path.join(config['data_path'], 'train'),
         output_dir=train_processed_path,
@@ -93,14 +94,13 @@ def main():
     )
 
     # 1. DataLoader
-    # SỬ DỤNG ĐƯỜNG DẪN DỮ LIỆU ĐÃ ĐƯỢC TIỀN XỬ LÝ
+    # Vẫn sử dụng đường dẫn dữ liệu đã tiền xử lý
     train_dataset = SupervisedVideoDataset(
         data_dir=train_processed_path,
         classes_list=CLASSES_LIST,
         sequence_length=SEQUENCE_LENGTH_S2,
         image_height=IMAGE_HEIGHT,
         image_width=IMAGE_WIDTH,
-        # transform=transform
     )
 
     val_dataset = SupervisedVideoDataset(
