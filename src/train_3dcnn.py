@@ -98,6 +98,12 @@ def main():
     print(f"Số mẫu huấn luyện: {len(train_dataset)}")
     print(f"Số mẫu validation: {len(val_dataset)}")
 
+    model_dir = os.path.dirname(args.model_save_path)
+    # Nếu đường dẫn không rỗng và thư mục chưa tồn tại, hãy tạo nó
+    if model_dir and not os.path.exists(model_dir):
+        os.makedirs(model_dir)
+
+
     # 6. Callbacks
     callbacks = []
 
