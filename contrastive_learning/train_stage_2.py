@@ -229,10 +229,10 @@ def main():
     )
     # 4. Trainer
     trainer = SupervisedTrainer(  # SupervisedTrainer vẫn dùng lại được
-        model=model.module,
+        model=model,
         criterion=criterion,
         optimizer=optimizer,
-        device=DEVICE,
+        device=None,
         train_dataloader=train_loader,
         val_dataloader=val_loader,
         lr_scheduler=scheduler,
