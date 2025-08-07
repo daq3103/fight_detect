@@ -65,7 +65,7 @@ def main():
         batch_size=config["batch_size"],
         shuffle=True,
         collate_fn=semantic_collate_fn,
-        num_workers=4,
+        # num_workers=4,
     )
     print(f"Đã tải {len(dataset)} mẫu video cho Contrastive Learning.")
 
