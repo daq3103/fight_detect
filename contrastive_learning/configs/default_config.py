@@ -21,7 +21,7 @@ KINETICS_STD = [0.22803, 0.22145, 0.216989]
 # --- Giai đoạn 1: Contrastive Learning ---
 STAGE1_CL_CONFIG = {
     "data_path": "/kaggle/input/bad-trimmed-dataset/bad-trimmed-dataset",
-    "epochs": 50,  # CL cần nhiều epoch hơn
+    "epochs": 30,  # CL cần nhiều epoch hơn
     "batch_size": 16,  # Batch size lớn hơn tốt cho CL
     "learning_rate": 5e-5,
     "temperature": 0.07,  # Tham số cho NT-Xent Loss
