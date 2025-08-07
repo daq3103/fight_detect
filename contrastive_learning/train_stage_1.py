@@ -89,10 +89,10 @@ def main():
     if torch.cuda.device_count() > 1:
         print(f"Sử dụng {torch.cuda.device_count()} GPU!")
         model = nn.DataParallel(model, device_ids=[0, 1])
-    model.module.prepare_for_finetuning_classifier(unfreeze_layers=0)
+    model.prepare_for_finetuning_classifier(unfreeze_layers=0)
     criterion = TripletLoss(temperature=config["temperature"], device=DEVICE)
     optimizer = optim.AdamW(
-        model.module.CLprj.parameters(), lr=config["learning_rate"], weight_decay=1e-6
+        model.CLprj.parameters(), lr=config["learning_rate"], weight_decay=1e-6
     )
     scheduler = optim.lr_scheduler.CosineAnnealingLR(
         optimizer, T_max=len(data_loader) * config["epochs"], eta_min=1e-6
@@ -106,10 +106,10 @@ def main():
 
         if epoch == warmup_epochs:
             print("--- Kết thúc warm-up. Unfreeze backbone và điều chỉnh LR groups ---")
-            model.module.prepare_for_finetuning_contrastive()  # <-- unfreeze all
+            model.prepare_for_finetuning_contrastive()  # <-- unfreeze all
             optimizer = optim.AdamW([
-                {"params": model.module.backbone.parameters(), "lr": config.get("backbone_lr", 1e-5)},  # <-- new low LR for backbone
-                {"params": model.module.CLprj.parameters(), "lr": config.get("head_lr", config["learning_rate"])},  # <-- higher LR for head
+                {"params": model.backbone.parameters(), "lr": config.get("backbone_lr", 1e-5)},  # <-- new low LR for backbone
+                {"params": model.CLprj.parameters(), "lr": config.get("head_lr", config["learning_rate"])},  # <-- higher LR for head
             ], weight_decay=config.get("weight_decay", 1e-6))
             remaining_iters = len(data_loader) * (config["epochs"] - epoch)
             scheduler = optim.lr_scheduler.CosineAnnealingLR(
@@ -152,7 +152,7 @@ def main():
         if epoch_loss < best_loss:
             best_loss = epoch_loss
             torch.save(
-                model.module.state_dict(), os.path.join(config["save_dir"], "best_model.pt")
+                model.state_dict(), os.path.join(config["save_dir"], "best_model.pt")
             )
             print(f"🎉 Model mới tốt nhất được lưu với loss: {best_loss:.4f}")
 
