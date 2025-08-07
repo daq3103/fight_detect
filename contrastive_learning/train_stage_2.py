@@ -114,14 +114,14 @@ def main():
             std=[0.22803, 0.22145, 0.216989]
         ),
         # THÊM AUGMENTATION mạnh hơn
-        T.RandomResizedCrop(
-            size=(IMAGE_HEIGHT, IMAGE_WIDTH), 
-            scale=(0.7, 1.0),  # Scale mạnh hơn
-            ratio=(0.8, 1.2)   # Ratio mạnh hơn
-        ),
-        T.RandomHorizontalFlip(p=0.5),
-        T.ColorJitter(brightness=0.4, contrast=0.4, saturation=0.4, hue=0.1),
-        T.RandomRotation(degrees=10),  # Thêm rotation
+        # T.RandomResizedCrop(
+        #     size=(IMAGE_HEIGHT, IMAGE_WIDTH), 
+        #     scale=(0.7, 1.0),  # Scale mạnh hơn
+        #     ratio=(0.8, 1.2)   # Ratio mạnh hơn
+        # ),
+        # T.RandomHorizontalFlip(p=0.5),
+        # T.ColorJitter(brightness=0.4, contrast=0.4, saturation=0.4, hue=0.1),
+        # T.RandomRotation(degrees=10),  # Thêm rotation
         # Thêm cutout/mixup nếu có thể
     ])
 
