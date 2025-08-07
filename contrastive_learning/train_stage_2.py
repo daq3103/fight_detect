@@ -107,30 +107,31 @@ def main():
         sequence_length=SEQUENCE_LENGTH_S2,
     )
     # 0. Augmentation
-    transform = T.Compose(
-        [
-            T.ToDtype(
-                torch.float32, scale=True
-            ),  # Đảm bảo video là float tensor và scale về [0, 1]
-            T.Normalize(
-                mean=[0.43216, 0.394666, 0.37645], std=[0.22803, 0.22145, 0.216989]
-            ),  # Dùng mean/std của Kinetics
-            # T.RandomResizedCrop(
-            #     size=(IMAGE_HEIGHT, IMAGE_WIDTH), scale=(0.8, 1.0), ratio=(0.9, 1.1)
-            # ),
-            # T.RandomHorizontalFlip(p=0.5),
-            # T.ColorJitter(brightness=0.4, contrast=0.4, saturation=0.4, hue=0.1),
-        ]
-    )
+    transform = T.Compose([
+        T.ToDtype(torch.float32, scale=True),
+        T.Normalize(
+            mean=[0.43216, 0.394666, 0.37645], 
+            std=[0.22803, 0.22145, 0.216989]
+        ),
+        # THÊM AUGMENTATION mạnh hơn
+        T.RandomResizedCrop(
+            size=(IMAGE_HEIGHT, IMAGE_WIDTH), 
+            scale=(0.7, 1.0),  # Scale mạnh hơn
+            ratio=(0.8, 1.2)   # Ratio mạnh hơn
+        ),
+        T.RandomHorizontalFlip(p=0.5),
+        T.ColorJitter(brightness=0.4, contrast=0.4, saturation=0.4, hue=0.1),
+        T.RandomRotation(degrees=10),  # Thêm rotation
+        # Thêm cutout/mixup nếu có thể
+    ])
 
-    val_transform = T.Compose(
-        [
-            T.ToDtype(torch.float32, scale=True),
-            T.Normalize(
-                mean=[0.43216, 0.394666, 0.37645], std=[0.22803, 0.22145, 0.216989]
-            ),
-        ]
-    )
+    val_transform = T.Compose([
+        T.ToDtype(torch.float32, scale=True),
+        T.Normalize(
+            mean=[0.43216, 0.394666, 0.37645], 
+            std=[0.22803, 0.22145, 0.216989]
+        ),
+    ])
 
     # 1. DataLoader
     # Vẫn sử dụng đường dẫn dữ liệu đã tiền xử lý
@@ -186,30 +187,47 @@ def main():
     # 3. Optimizer, Loss, Scheduler
     # Chỉ train các tham số của classifier_head
     # 4. Optimizer với LEARNING RATE PHÂN TẦNG và WEIGHT DECAY
-    backbone_params = [
-        p for n, p in model.module.backbone.named_parameters() if p.requires_grad
-    ]
-    classifier_params = [
-        p for n, p in model.module.classifier.named_parameters() if p.requires_grad
-    ]
+    # backbone_params = [
+    #     p for n, p in model.module.backbone.named_parameters() if p.requires_grad
+    # ]
+    # classifier_params = [
+    #     p for n, p in model.module.classifier.named_parameters() if p.requires_grad
+    # ]
+    backbone_params = []
+    classifier_params = []
+    
+    for name, param in model.named_parameters():
+        if param.requires_grad:
+            if 'backbone' in name:
+                backbone_params.append(param)
+            else:
+                classifier_params.append(param)
 
     param_groups = [
         {
             "params": backbone_params,
-            "lr": config["learning_rate_backbone"],
-        },  # LR rất nhỏ cho backbone
+            "lr": 1e-5,  # LR rất nhỏ cho backbone
+            "weight_decay": 1e-4,
+        },
         {
             "params": classifier_params,
-            "lr": config["learning_rate_head"],
-        },  # LR lớn hơn cho head
+            "lr": 1e-3,  # LR lớn hơn cho classifier
+            "weight_decay": 1e-3,  # Weight decay mạnh hơn
+        },
     ]
-
-    optimizer = optim.AdamW(param_groups, weight_decay=config["weight_decay"])
+    optimizer = optim.AdamW(param_groups)
     criterion = nn.CrossEntropyLoss()
     scheduler = optim.lr_scheduler.ReduceLROnPlateau(
         optimizer, "max", factor=0.5, patience=3, verbose=True
     )
-
+    scheduler = optim.lr_scheduler.CosineAnnealingWarmRestarts(
+        optimizer, 
+        T_0=10,  # Restart every 10 epochs
+        T_mult=2,  # Double the restart interval
+        eta_min=1e-7
+    )
+    
+    criterion = nn.CrossEntropyLoss(label_smoothing=0.1)
     # 5. Callbacks với EARLY STOPPING
     # early_stopping = EarlyStopping(
     #     patience=config['es_patience'],
@@ -222,7 +240,7 @@ def main():
     early_stopping = EarlyStopping(
         patience=config['es_patience'],
         verbose=True,
-        delta=0.0,
+        delta=0.001,
         path=config['model_save_path'],
         monitor="val_accuracy",
         restore_best_weights=True,

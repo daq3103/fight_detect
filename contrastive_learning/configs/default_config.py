@@ -40,7 +40,7 @@ STAGE2_SUPERVISED_CONFIG = {
     "learning_rate_head": 1e-4,
     "unfreeze_layers": 0,  # Chỉ train classifier, không unfreeze backbone
     "weight_decay": 1e-4,
-    "es_patience": 7,
+    "es_patience": 5,
     "dropout_prob": 0.5,
     "save_dir": f"{MODEL_SAVE_DIR}/stage_2_supervised",
     "model_save_path": f"{MODEL_SAVE_DIR}/stage_2_supervised/best_model.pt",

@@ -4,22 +4,27 @@ import torch.nn.functional as F
 from torchvision.models.video import r2plus1d_18, R2Plus1D_18_Weights
 
 
+
 class ClassifierProjection(nn.Module):
     """
-    KIẾN TRÚC HEAD ĐÃ ĐƯỢC SỬA LẠI: Đơn giản, hiệu quả, không có lỗi.
+    Cải thiện regularization để giảm overfitting
     """
-    def __init__(self, num_classes=2, in_features=512, dropout_prob=0.5): # Tăng dropout
+    def __init__(self, num_classes=2, in_features=512, dropout_prob=0.7):  # Tăng dropout lên 0.7
         super().__init__()
         self.classifier = nn.Sequential(
-            nn.Linear(in_features, 512),
+            nn.Linear(in_features, 256),  # Giảm hidden size từ 512 -> 256
+            nn.BatchNorm1d(256),          # Thêm BatchNorm
             nn.ReLU(inplace=True),
             nn.Dropout(p=dropout_prob),
-            nn.Linear(512, num_classes),
+            nn.Linear(256, 128),          # Thêm layer trung gian
+            nn.BatchNorm1d(128),
+            nn.ReLU(inplace=True),
+            nn.Dropout(p=dropout_prob),
+            nn.Linear(128, num_classes),
         )
 
     def forward(self, x: torch.Tensor):
         return self.classifier(x)
-
 
 class CLProjection(nn.Module):
     def __init__(self, in_features, hidden_dim, out_features):
@@ -62,6 +67,17 @@ class FightDetector3DCNN(nn.Module):
         )
 
         self._initialize_weights()
+        self._freeze_backbone_partially()
+
+    def _freeze_backbone_partially(self):
+        """Đóng băng các layer đầu của backbone"""
+        # Chỉ unfreeze layer3, layer4 và avgpool
+        for name, param in self.backbone.named_parameters():
+            if not any(layer in name for layer in ['layer3', 'layer4', 'avgpool']):
+                param.requires_grad = False
+            else:
+                param.requires_grad = True
+
 
     def _initialize_weights(self):
         for m in self.classifier.modules():
