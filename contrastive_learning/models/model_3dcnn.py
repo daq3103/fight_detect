@@ -125,29 +125,29 @@ class FightDetector3DCNN(nn.Module):
         logits = self.classifier(features)
         return logits
 
-    # def __freeze_backbone(self):
-    #     for param in self.backbone.parameters():
-    #         param.requires_grad = False
+    def __freeze_backbone(self):
+        for param in self.backbone.parameters():
+            param.requires_grad = False
 
-    # def __unfreeze_backbone(self):
-    #     for param in self.backbone.parameters():
-    #         param.requires_grad = True
+    def __unfreeze_backbone(self):
+        for param in self.backbone.parameters():
+            param.requires_grad = True
 
-    # def __unfreeze_top_layers(self, num_layers: int):
-    #     # Unfreeze theo block thay vì toàn bộ
-    #     layers_to_unfreeze = [
-    #         self.backbone.layer3,
-    #         self.backbone.layer4,
-    #         self.backbone.avgpool
-    #     ][-num_layers:]
+    def __unfreeze_top_layers(self, num_layers: int):
+        # Unfreeze theo block thay vì toàn bộ
+        layers_to_unfreeze = [
+            self.backbone.layer3,
+            self.backbone.layer4,
+            self.backbone.avgpool
+        ][-num_layers:]
         
-    #     for layer in layers_to_unfreeze:
-    #         for param in layer.parameters():
-    #             param.requires_grad = True
+        for layer in layers_to_unfreeze:
+            for param in layer.parameters():
+                param.requires_grad = True
 
-    # def prepare_for_finetuning_classifier(self, unfreeze_layers=3):
-    #     self.__freeze_backbone()
-    #     self.__unfreeze_top_layers(num_layers=unfreeze_layers)
+    def prepare_for_finetuning_classifier(self, unfreeze_layers=3):
+        self.__freeze_backbone()
+        self.__unfreeze_top_layers(num_layers=unfreeze_layers)
 
-    # def prepare_for_finetuning_contrastive(self):
-    #     self.__unfreeze_backbone()
+    def prepare_for_finetuning_contrastive(self):
+        self.__unfreeze_backbone()
