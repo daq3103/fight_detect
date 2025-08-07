@@ -16,11 +16,11 @@ from utils.losses import TripletLoss
 from configs.default_config import (
     STAGE1_CL_CONFIG,
     DEVICE,
-    SEQUENCE_LENGTH,
+    # SEQUENCE_LENGTH,
     IMAGE_HEIGHT,
     IMAGE_WIDTH,
 )
-
+from configs.default_config import SEQUENCE_LENGTH_S1
 
 def temporal_crop_fn(vid, ratio=0.8):
     T0 = vid.size(0)
@@ -55,7 +55,7 @@ def main():
 
     dataset = SemanticContrastiveDataset(
         data_dir=train_path,
-        sequence_length=SEQUENCE_LENGTH,
+        sequence_length=SEQUENCE_LENGTH_S1,
         image_height=IMAGE_HEIGHT,
         image_width=IMAGE_WIDTH,
         transform=transform,

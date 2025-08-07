@@ -20,7 +20,7 @@ KINETICS_STD = [0.22803, 0.22145, 0.216989]
 
 # --- Giai đoạn 1: Contrastive Learning ---
 STAGE1_CL_CONFIG = {
-    "data_path": "/kaggle/input/rwf2000/RWF-2000",
+    "data_path": "/kaggle/input/bad-trimmed-dataset/bad-trimmed-dataset",
     "epochs": 70,  # CL cần nhiều epoch hơn
     "batch_size": 16,  # Batch size lớn hơn tốt cho CL
     "learning_rate": 5e-5,
