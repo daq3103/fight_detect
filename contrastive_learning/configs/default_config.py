@@ -10,7 +10,7 @@ MODEL_SAVE_DIR = "./checkpoints"
 # --- Cấu hình tiền xử lý & DataLoader ---
 IMAGE_HEIGHT = 112
 IMAGE_WIDTH = 112
-SEQUENCE_LENGTH_S1 = 64
+SEQUENCE_LENGTH_S1 = 16
 SEQUENCE_LENGTH_S2 = 16
 
 # --- Đặc điểm của phân phối dữ liệu Pretrain ---
@@ -20,13 +20,13 @@ KINETICS_STD = [0.22803, 0.22145, 0.216989]
 
 # --- Giai đoạn 1: Contrastive Learning ---
 STAGE1_CL_CONFIG = {
-    "data_path": "/kaggle/input/rwf2000/RWF-2000",
+    "data_path": "/kaggle/input/bad-trimmed-dataset/bad-trimmed-dataset",
     "epochs": 50,  # CL cần nhiều epoch hơn
     "batch_size": 16,  # Batch size lớn hơn tốt cho CL
     "learning_rate": 5e-5,
     "temperature": 0.07,  # Tham số cho NT-Xent Loss
     "save_dir": f"./weights/best_CL_model.pt",
-    "virtual_batch_size": 64,
+    "virtual_batch_size": 128,
     "warmup_epochs": 5,
 }
 
