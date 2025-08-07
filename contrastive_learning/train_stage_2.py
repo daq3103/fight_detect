@@ -211,8 +211,8 @@ def main():
         },
         {
             "params": classifier_params,
-            "lr": 1e-3,  # LR lớn hơn cho classifier
-            "weight_decay": 1e-3,  # Weight decay mạnh hơn
+            "lr": 1e-4,  # LR lớn hơn cho classifier
+            "weight_decay": 1e-4,  # Weight decay mạnh hơn
         },
     ]
     optimizer = optim.AdamW(param_groups)
@@ -224,10 +224,10 @@ def main():
         optimizer, 
         T_0=10,  # Restart every 10 epochs
         T_mult=2,  # Double the restart interval
-        eta_min=1e-7
+        eta_min=1e-6
     )
     
-    criterion = nn.CrossEntropyLoss(label_smoothing=0.1)
+    criterion = nn.CrossEntropyLoss()
     # 5. Callbacks với EARLY STOPPING
     # early_stopping = EarlyStopping(
     #     patience=config['es_patience'],
