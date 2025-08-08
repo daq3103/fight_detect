@@ -21,6 +21,7 @@ class ClassifierProjection(nn.Module):
             nn.ReLU(inplace=True),
             nn.Dropout(p=dropout_prob),
             nn.Linear(128, num_classes),
+            nn.Flatten
         )
 
     def forward(self, x: torch.Tensor):
