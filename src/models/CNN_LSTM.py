@@ -23,17 +23,17 @@ class FightDetectionModel(nn.Module):
         for param in backbone.parameters():
             param.requires_grad = False
         # Unfreeze 40 leaf modules
-        leafs = [m for m in backbone.modules() if len(list(m.children())) == 0]
-        for module in leafs[-40:]:
+        leafs = [m for m in backbone.modules() if len(list(m.children())) == 0] 
+        for module in leafs[-40:]:  
             for p in module.parameters():
-                p.requires_grad = True
+                p.requires_grad = True 
         self.backbone = backbone
 
         # 2) Tính kích thước đầu ra của feature extractor
         with torch.no_grad():
             dummy = torch.zeros(1, 3, image_height, image_width)
             fo = self.backbone(dummy)
-            feat_dim = fo.view(1, -1).size(1)
+            feat_dim = fo.view(1, -1).size(1)  # Flatten
 
         # 3) LSTM Bi-directional
         self.lstm = nn.LSTM(
@@ -61,11 +61,11 @@ class FightDetectionModel(nn.Module):
             nn.Linear(32, num_classes),
         )
 
-    def forward(self, x):
+    def forward(self, x): 
         # x: (batch, seq_len, C, H, W)
         B, S, C, H, W = x.shape
         # 1) Backbone per-frame
-        x = x.view(B * S, C, H, W)
+        x = x.view(B * S, C, H, W) 
         x = self.backbone(x)  # (B*S, feat_map_dims...)
         x = x.view(B, S, -1)  # (B, S, feat_dim)
 

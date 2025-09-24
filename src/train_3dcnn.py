@@ -7,7 +7,7 @@ import os  # Thêm import os để kiểm tra đường dẫn
 
 from configs.configs import parse_arguments
 from models.model_3dcnn_r2plus1d import FightDetection3DCNN
-from data.datasets import VideoDataset  
+from data.datasets import SegmentationDataset  # Thay đổi từ VideoDataset sang SegmentationDataset
 
 from utils.callbacks import EarlyStopping
 from trainer.trainer import Trainer3DCNN
@@ -56,53 +56,59 @@ def main():
     else:
         raise ValueError(f"Optimizer {args.optimizer} not supported.")
 
-    # 5. Data preparation (Using the new VideoDataset)
+    # 5. Data preparation (Using SegmentationDataset instead of VideoDataset)
     if not os.path.exists(args.data_preprocessed_dir):
         print(f"Error: Dataset directory not found at {args.data_preprocessed_dir}")
         print(
-            "Please ensure 'Real Life Violence Dataset' is extracted and located correctly."
+            "Please ensure video files are located in the specified directory."
         )
         return  # Exit if data directory is not found
 
-    full_dataset = VideoDataset(
-        data_dir=args.data_preprocessed_dir,
-        classes_list=args.classes_list,
+    # Tạo SegmentationDataset với YOLO segmentation
+    full_dataset = SegmentationDataset(
+        video_dir=args.data_preprocessed_dir,
+        model_path="yolo11n-seg.pt",  
+        target_class="person",
+        sequence_length=args.sequence_length,
         image_height=args.image_height,
         image_width=args.image_width,
-        sequence_length=args.sequence_length,
-        # No transform specified for now, as normalization is done in frames_extraction
     )
 
+    print(f"Tổng số video tìm thấy: {len(full_dataset)}")
+    
+    if len(full_dataset) == 0:
+        print("Error: No video files found in the dataset directory. Exiting.")
+        return
+
     # Split the dataset into training and validation
-    train_size = int((1 - args.val_split) * len(full_dataset))
+    train_size = int((1 - args.val_split) * len(full_dataset)) 
     val_size = len(full_dataset) - train_size
 
     # Ensure val_size is at least 1 if total samples allow
     if train_size == 0 and len(full_dataset) > 0:
         train_size = 1
         val_size = len(full_dataset) - 1
-    elif train_size == 0 and len(full_dataset) == 0:
-        print("Error: No samples found in the dataset. Exiting.")
-        return
+    elif val_size == 0 and len(full_dataset) > 1:
+        val_size = 1
+        train_size = len(full_dataset) - 1
 
     train_dataset, val_dataset = random_split(full_dataset, [train_size, val_size])
 
+    # Giảm num_workers vì segmentation cần nhiều RAM
     train_dataloader = DataLoader(
-        train_dataset, batch_size=args.batch_size, shuffle=True, num_workers=4
-    )  # num_workers for faster loading
+        train_dataset, batch_size=args.batch_size, shuffle=True, num_workers=2
+    )
     val_dataloader = DataLoader(
-        val_dataset, batch_size=args.batch_size, shuffle=False, num_workers=4
+        val_dataset, batch_size=args.batch_size, shuffle=False, num_workers=2
     )
 
-    print(f"Tổng số mẫu trong dataset: {len(full_dataset)}")
-    print(f"Số mẫu huấn luyện: {len(train_dataset)}")
-    print(f"Số mẫu validation: {len(val_dataset)}")
+    print(f"Số video huấn luyện: {len(train_dataset)}")
+    print(f"Số video validation: {len(val_dataset)}")
 
     model_dir = os.path.dirname(args.model_save_path)
     # Nếu đường dẫn không rỗng và thư mục chưa tồn tại, hãy tạo nó
     if model_dir and not os.path.exists(model_dir):
         os.makedirs(model_dir)
-
 
     # 6. Callbacks
     callbacks = []
@@ -139,6 +145,7 @@ def main():
         model_save_path=args.model_save_path,
     )
 
+    print("Bắt đầu huấn luyện với segmentation data...")
     model_3dcnn = trainer.train(num_epochs=args.epochs)
 
     print("\nLịch sử huấn luyện cuối cùng:")

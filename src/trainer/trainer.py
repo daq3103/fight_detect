@@ -133,7 +133,7 @@ class Trainer3DCNN:
         self.callbacks = callbacks if callbacks is not None else []
         self.model_dir = model_save_path
         self.use_amp = use_amp
-        self.grad_accum_steps = grad_accum_steps
+        self.grad_accum_steps = grad_accum_steps 
         self.scaler = GradScaler(enabled=use_amp)
         
         os.makedirs(model_save_path, exist_ok=True)
