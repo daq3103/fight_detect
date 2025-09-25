@@ -104,11 +104,12 @@ class SegmentationDataset(Dataset):
     """
     Dataset để xử lý segmentation từ video files và trích xuất các vùng đã được segment.
     """
-    def __init__(self, video_dir, model_path="yolo11n-seg.pt", target_class="person", 
+    def __init__(self, video_dir, classes_list=None, model_path="yolo11n-seg.pt", target_class="person", 
                  sequence_length=30, image_height=224, image_width=224):
         """
         Args:
-            video_dir: Đường dẫn đến thư mục chứa video files
+            video_dir: Đường dẫn đến thư mục chứa video files (có thể có subfolder cho từng class)
+            classes_list: List các class names (VD: ['fight', 'normal']) - nếu None sẽ tự động detect
             model_path: Đường dẫn đến YOLO model
             target_class: Class cần segment (mặc định "person")
             sequence_length: Số frames cần trích xuất từ mỗi video
@@ -121,19 +122,56 @@ class SegmentationDataset(Dataset):
         self.image_height = image_height
         self.image_width = image_width
         
+        # Auto-detect classes nếu không được cung cấp
+        if classes_list is None:
+            self.classes_list = self._detect_classes()
+        else:
+            self.classes_list = classes_list
+            
+        print(f"Classes detected: {self.classes_list}")
+        
         # Load YOLO model
         self.model = YOLO(model_path)
         
-        # Tìm tất cả video files
-        self.video_files = self._get_video_files()
+        # Tìm tất cả video files với labels
+        self.samples = self._load_samples()
         
+    def _detect_classes(self):
+        """Tự động detect classes từ folder structure."""
+        subdirs = [d for d in os.listdir(self.video_dir) 
+                  if os.path.isdir(os.path.join(self.video_dir, d))]
+        if subdirs:
+            return sorted(subdirs)  # Sử dụng subfolder names làm class names
+        else:
+            return ['unknown']  # Default nếu không có subfolder
+            
+    def _load_samples(self):
+        """Load tất cả video files với labels."""
+        samples = []
+        video_extensions = ['*.mp4', '*.avi', '*.mov', '*.mkv']
+        
+        for class_index, class_name in enumerate(self.classes_list):
+            class_path = os.path.join(self.video_dir, class_name)
+            
+            # Nếu có subfolder cho từng class
+            if os.path.isdir(class_path):
+                for ext in video_extensions:
+                    video_files = glob.glob(os.path.join(class_path, ext))
+                    for video_file in video_files:
+                        samples.append((video_file, class_index))
+            else:
+                # Nếu không có subfolder, tất cả video cùng class
+                if class_name == 'unknown':
+                    for ext in video_extensions:
+                        video_files = glob.glob(os.path.join(self.video_dir, ext))
+                        for video_file in video_files:
+                            samples.append((video_file, 0))  # Gán label 0 cho tất cả
+        
+        return samples
+    
     def _get_video_files(self):
         """Lấy danh sách tất cả video files."""
-        video_extensions = ['*.mp4', '*.avi', '*.mov', '*.mkv']
-        video_files = []
-        for ext in video_extensions:
-            video_files.extend(glob.glob(os.path.join(self.video_dir, ext)))
-        return video_files
+        return [sample[0] for sample in self.samples]
     
     def _extract_segmented_frames(self, video_path):
         """
@@ -208,7 +246,7 @@ class SegmentationDataset(Dataset):
             return sampled[:self.sequence_length]
     
     def __len__(self):
-        return len(self.video_files)
+        return len(self.samples)
     
     def __getitem__(self, idx):
         """
@@ -216,9 +254,9 @@ class SegmentationDataset(Dataset):
         
         Returns:
             frames_tensor: Tensor shape (T, C, H, W)
-            video_path: Đường dẫn video (có thể dùng làm label hoặc identifier)
+            label_tensor: Label tensor cho classification
         """
-        video_path = self.video_files[idx]
+        video_path, label = self.samples[idx]
         
         # Extract segmented frames
         segmented_frames = self._extract_segmented_frames(video_path)
@@ -234,8 +272,9 @@ class SegmentationDataset(Dataset):
         
         # Convert to tensor and change dimension order to (T, C, H, W)
         frames_tensor = torch.from_numpy(frames_array).permute(0, 3, 1, 2)
+        label_tensor = torch.tensor(label, dtype=torch.long)
         
-        return frames_tensor, video_path
+        return frames_tensor, label_tensor
 
 
 class SegmentationProcessor:
