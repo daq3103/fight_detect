@@ -67,7 +67,7 @@ def main():
     # Tạo SegmentationDataset với YOLO segmentation
     full_dataset = SegmentationDataset(
         video_dir=args.data_preprocessed_dir,
-        classes_list=['fight', 'normal'],  # Hoặc để None để auto-detect
+        classes_list=['fight', 'no_fi'],  # Hoặc để None để auto-detect
         model_path="yolo11n-seg.pt",  
         target_class="person",
         sequence_length=args.sequence_length,
