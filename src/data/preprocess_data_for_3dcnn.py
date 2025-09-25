@@ -1,35 +1,20 @@
 # preprocess_data.py
 
+import sys
 import os
+sys.path.append(os.path.dirname(os.path.dirname(__file__)))
 import glob
+from data.data_utils import frames_extraction
+from configs.configs import parse_arguments
+
 import numpy as np
 from tqdm import tqdm  # Thư viện để hiển thị thanh tiến trình, rất hữu ích!
 import argparse
 
-# Import hàm trích xuất frame từ file data_utils.py của bạn
-from data.data_utils import frames_extraction
-from configs.configs import parse_arguments # Giả sử các config của bạn cũng ở đây
-
 def preprocess_videos(data_dir, output_dir, image_height, image_width, sequence_length, video_extensions=['*.mp4', '*.avi', '*.mov']):
-    """
-    Duyệt qua thư mục dữ liệu video gốc, trích xuất các khung hình cho mỗi video,
-    và lưu chúng dưới dạng tệp .npy trong thư mục đầu ra.
 
-    Args:
-        data_dir (str): Đường dẫn đến thư mục chứa các video gốc (ví dụ: 'Real Life Violence Dataset').
-                        Thư mục này nên chứa các thư mục con cho mỗi lớp (ví dụ: 'Fight', 'NoFight').
-        output_dir (str): Đường dẫn đến thư mục để lưu các tệp .npy đã xử lý.
-        image_height (int): Chiều cao mong muốn của khung hình.
-        image_width (int): Chiều rộng mong muốn của khung hình.
-        sequence_length (int): Số lượng khung hình cần trích xuất từ mỗi video.
-        video_extensions (list): Danh sách các phần mở rộng của file video cần tìm.
-    """
-    # Lấy danh sách các lớp từ tên các thư mục con trong data_dir
     classes_list = [d for d in os.listdir(data_dir) if os.path.isdir(os.path.join(data_dir, d))]
-    
-    if not classes_list:
-        print(f"Lỗi: Không tìm thấy thư mục lớp nào trong '{data_dir}'.")
-        return
+
 
     print(f"Tìm thấy các lớp: {classes_list}")
 
@@ -81,6 +66,23 @@ def main():
     """
     # Sử dụng lại trình phân tích đối số từ file config của bạn
     args = parse_arguments()
+    
+    # Override paths for local Windows environment if they're still set to Kaggle paths
+    if args.data_raw_dir.startswith('/kaggle/'):
+        # Update this path to your actual local data directory
+        args.data_raw_dir = r"D:\code\FightDetection\dataset"
+        print(f"Đã thay đổi đường dẫn từ Kaggle sang local: {args.data_raw_dir}")
+    
+    if args.data_preprocessed_dir.startswith('/kaggle/'):
+        # Update this path to your desired output directory
+        args.data_preprocessed_dir = r"D:\code\FightDetection\data\preprocessed"
+        print(f"Đã thay đổi đường dẫn output từ Kaggle sang local: {args.data_preprocessed_dir}")
+
+    # Check if the input directory exists
+    if not os.path.exists(args.data_raw_dir):
+        print(f"Lỗi: Thư mục dữ liệu gốc không tồn tại: {args.data_raw_dir}")
+        print("Vui lòng tạo thư mục và đặt dữ liệu video của bạn vào đó.")
+        return
 
     # In ra các tham số sẽ được sử dụng
     print("Bắt đầu quá trình tiền xử lý với các tham số sau:")
