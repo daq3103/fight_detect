@@ -1,6 +1,8 @@
 # Kaggle version
 import sys
 import os
+import shutil
+import glob
 
 # Kaggle specific paths
 sys.path.append('/kaggle/working/FightDetection/src')
@@ -17,6 +19,49 @@ from src.models.model_3dcnn_r2plus1d import FightDetection3DCNN
 from src.data.datasets import SegmentationDataset
 from src.trainer.trainer import Trainer3DCNN
 from src.utils.viz import plot_combined_metrics
+
+def organize_kaggle_data():
+    """
+    Organize video data from Kaggle input into fight/normal structure
+    """
+    print("🔄 Organizing Kaggle data...")
+    
+    # Kaggle input path
+    source_dir = "/kaggle/input/hockey-fight-vidoes/data"
+    target_dir = "/kaggle/working/FightDetection/data_organized"
+    
+    # Create organized directory structure
+    os.makedirs(target_dir, exist_ok=True)
+    os.makedirs(os.path.join(target_dir, "fight"), exist_ok=True)
+    os.makedirs(os.path.join(target_dir, "normal"), exist_ok=True)
+    
+    # Find all video files
+    video_files = glob.glob(os.path.join(source_dir, "*.avi"))
+    print(f"Found {len(video_files)} video files")
+    
+    fight_count = 0
+    normal_count = 0
+    
+    for video_file in video_files:
+        filename = os.path.basename(video_file)
+        
+        if filename.startswith("fi") and "_xvid.avi" in filename:
+            # Fight videos
+            target_path = os.path.join(target_dir, "fight", filename)
+            shutil.copy2(video_file, target_path)
+            fight_count += 1
+        else:
+            # Normal videos (no* or others)
+            target_path = os.path.join(target_dir, "normal", filename)
+            shutil.copy2(video_file, target_path)
+            normal_count += 1
+    
+    print(f"✅ Data organized:")
+    print(f"  - {fight_count} fight videos")
+    print(f"  - {normal_count} normal videos")
+    print(f"  - Total: {fight_count + normal_count} videos")
+    
+    return target_dir
 
 class Args:
     def __init__(self):
@@ -46,9 +91,12 @@ class Args:
         self.lr_reduce_min_lr = 1e-7
 
 def main():
+    # First, organize the data
+    organize_kaggle_data()
+    
     args = Args()
     
-    print("=== KAGGLE SEGMENTATION TRAINING ===")
+    print("\n=== KAGGLE SEGMENTATION TRAINING ===")
     print(f"PyTorch version: {torch.__version__}")
     print(f"CUDA available: {torch.cuda.is_available()}")
     
@@ -92,6 +140,10 @@ def main():
 
     print(f"Total videos: {len(full_dataset)}")
     
+    if len(full_dataset) == 0:
+        print("❌ No videos found! Check data organization.")
+        return
+    
     # Split dataset
     train_size = int((1 - args.val_split) * len(full_dataset)) 
     val_size = len(full_dataset) - train_size
@@ -134,8 +186,8 @@ def main():
     try:
         plot_combined_metrics(history)
         print("📊 Metrics plotted!")
-    except:
-        print("⚠️ Could not plot metrics")
+    except Exception as e:
+        print(f"⚠️ Could not plot metrics: {e}")
 
     return history
 
