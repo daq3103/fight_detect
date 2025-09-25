@@ -1,11 +1,12 @@
-# Kaggle version
+# Kaggle version - FIXED IMPORTS
 import sys
 import os
 import shutil
 import glob
 
-# Kaggle specific paths
-sys.path.append('/kaggle/working/FightDetection/src')
+# Kaggle specific paths - SỬA ĐỔI
+sys.path.append('/kaggle/working/fight_detect')  # Thêm root directory
+sys.path.append('/kaggle/working/fight_detect/src')  # Thêm src directory
 
 # Import cần thiết
 import torch
@@ -14,11 +15,27 @@ from torch.utils.data import DataLoader, random_split
 import numpy as np
 import random
 
-from src.configs.configs import parse_arguments
-from src.models.model_3dcnn_r2plus1d import FightDetection3DCNN
-from src.data.datasets import SegmentationDataset
-from src.trainer.trainer import Trainer3DCNN
-from src.utils.viz import plot_combined_metrics
+# Fix imports for Kaggle
+try:
+    from src.models.model_3dcnn_r2plus1d import FightDetection3DCNN
+    from src.data.datasets import SegmentationDataset
+    from src.trainer.trainer import Trainer3DCNN
+    from src.utils.viz import plot_combined_metrics
+except ImportError as e:
+    print(f"Import error: {e}")
+    print("Trying alternative import paths...")
+    
+    # Alternative imports
+    sys.path.insert(0, '/kaggle/working/fight_detect/src')
+    sys.path.insert(0, '/kaggle/working/fight_detect/src/models')
+    sys.path.insert(0, '/kaggle/working/fight_detect/src/data')
+    sys.path.insert(0, '/kaggle/working/fight_detect/src/trainer')
+    sys.path.insert(0, '/kaggle/working/fight_detect/src/utils')
+    
+    from model_3dcnn_r2plus1d import FightDetection3DCNN
+    from datasets import SegmentationDataset
+    from trainer import Trainer3DCNN
+    from viz import plot_combined_metrics
 
 def organize_kaggle_data():
     """
@@ -28,7 +45,7 @@ def organize_kaggle_data():
     
     # Kaggle input path
     source_dir = "/kaggle/input/hockey-fight-vidoes/data"
-    target_dir = "/kaggle/working/FightDetection/data_organized"
+    target_dir = "/kaggle/working/fight_detect/data_organized"  # SỬA ĐỔI
     
     # Create organized directory structure
     os.makedirs(target_dir, exist_ok=True)
@@ -65,22 +82,22 @@ def organize_kaggle_data():
 
 class Args:
     def __init__(self):
-        # Kaggle paths
-        self.data_preprocessed_dir = "/kaggle/working/FightDetection/data_organized"
+        # Kaggle paths - SỬA ĐỔI
+        self.data_preprocessed_dir = "/kaggle/working/fight_detect/data_organized"
         self.model_save_path = "/kaggle/working/segmented_model.pth"
         
-        # Model params - tăng để train thực sự
+        # Model params
         self.num_classes = 2
         self.sequence_length = 30
         self.image_height = 224
         self.image_width = 224
         self.img_channels = 3
-        self.hidden_size = 256  # Tăng lên
+        self.hidden_size = 256
         self.dropout_prob = 0.3
-        self.learning_rate = 0.0001  # Giảm xuống
+        self.learning_rate = 0.0001
         self.optimizer = "AdamW"
-        self.batch_size = 4  # Kaggle GPU limit
-        self.epochs = 50  # Train thật
+        self.batch_size = 4
+        self.epochs = 50
         self.val_split = 0.2
         self.seed = 42
         
