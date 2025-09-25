@@ -166,9 +166,9 @@ def main():
     val_size = len(full_dataset) - train_size
     train_dataset, val_dataset = random_split(full_dataset, [train_size, val_size])
 
-    # DataLoaders
-    train_dataloader = DataLoader(train_dataset, batch_size=args.batch_size, shuffle=True, num_workers=2)
-    val_dataloader = DataLoader(val_dataset, batch_size=args.batch_size, shuffle=False, num_workers=2)
+    # DataLoaders - SỬA ĐỔI: num_workers=0 để tránh multiprocessing issues
+    train_dataloader = DataLoader(train_dataset, batch_size=args.batch_size, shuffle=True, num_workers=0)  # Đổi từ 2 thành 0
+    val_dataloader = DataLoader(val_dataset, batch_size=args.batch_size, shuffle=False, num_workers=0)    # Đổi từ 2 thành 0
 
     print(f"Training videos: {len(train_dataset)}")
     print(f"Validation videos: {len(val_dataset)}")
