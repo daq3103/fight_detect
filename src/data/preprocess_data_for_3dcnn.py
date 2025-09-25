@@ -67,25 +67,48 @@ def main():
     # Sử dụng lại trình phân tích đối số từ file config của bạn
     args = parse_arguments()
     
-    # Override paths for local Windows environment if they're still set to Kaggle paths
-    if args.data_raw_dir.startswith('/kaggle/'):
-        # Update this path to your actual local data directory
-        args.data_raw_dir = r"D:\code\FightDetection\dataset"
-        print(f"Đã thay đổi đường dẫn từ Kaggle sang local: {args.data_raw_dir}")
-    
-    if args.data_preprocessed_dir.startswith('/kaggle/'):
-        # Update this path to your desired output directory
-        args.data_preprocessed_dir = r"D:\code\FightDetection\data\preprocessed"
-        print(f"Đã thay đổi đường dẫn output từ Kaggle sang local: {args.data_preprocessed_dir}")
+    # Override paths based on environment
+    import sys
+    if 'kaggle' in sys.path[0].lower() or '/kaggle/' in os.getcwd():
+        # Running on Kaggle
+        if not hasattr(args, 'data_raw_dir') or args.data_raw_dir.startswith('/kaggle/input/violencedataset/'):
+            args.data_raw_dir = "/kaggle/input/fight-data"  # Kaggle input path
+            print(f"Kaggle environment detected. Using path: {args.data_raw_dir}")
+        
+        if not hasattr(args, 'data_preprocessed_dir') or args.data_preprocessed_dir.startswith('/kaggle/working/'):
+            args.data_preprocessed_dir = "/kaggle/working/preprocessed_data"  # Kaggle output path
+            print(f"Output will be saved to: {args.data_preprocessed_dir}")
+    else:
+        # Running locally
+        if args.data_raw_dir.startswith('/kaggle/'):
+            args.data_raw_dir = r"D:\code\FightDetection\dataset"
+            print(f"Local environment detected. Using path: {args.data_raw_dir}")
+        
+        if args.data_preprocessed_dir.startswith('/kaggle/'):
+            args.data_preprocessed_dir = r"D:\code\FightDetection\data\preprocessed"
+            print(f"Output will be saved to: {args.data_preprocessed_dir}")
 
     # Check if the input directory exists
     if not os.path.exists(args.data_raw_dir):
         print(f"Lỗi: Thư mục dữ liệu gốc không tồn tại: {args.data_raw_dir}")
-        print("Vui lòng tạo thư mục và đặt dữ liệu video của bạn vào đó.")
+        print("Vui lòng kiểm tra lại đường dẫn dữ liệu.")
+        print("Trên Kaggle, đảm bảo dataset đã được add vào notebook.")
         return
 
+    # List contents of data directory for debugging
+    print(f"\nNội dung của thư mục {args.data_raw_dir}:")
+    try:
+        for item in os.listdir(args.data_raw_dir):
+            item_path = os.path.join(args.data_raw_dir, item)
+            if os.path.isdir(item_path):
+                print(f"  📁 {item}/")
+            else:
+                print(f"  📄 {item}")
+    except Exception as e:
+        print(f"Không thể liệt kê nội dung: {e}")
+
     # In ra các tham số sẽ được sử dụng
-    print("Bắt đầu quá trình tiền xử lý với các tham số sau:")
+    print("\nBắt đầu quá trình tiền xử lý với các tham số sau:")
     print(f"Thư mục video gốc: {args.data_raw_dir}")
     print(f"Thư mục đầu ra: {args.data_preprocessed_dir}")
     print(f"Kích thước ảnh (H x W): {args.image_height} x {args.image_width}")
