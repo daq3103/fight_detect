@@ -7,7 +7,7 @@ import os  # Thêm import os để kiểm tra đường dẫn
 
 from configs.configs import parse_arguments
 from models.model_3dcnn_r2plus1d import FightDetection3DCNN
-from data.datasets import SegmentationDataset  # Thay đổi từ VideoDataset sang SegmentationDataset
+from data.datasets import  VideoDataset 
 
 from utils.callbacks import EarlyStopping
 from trainer.trainer import Trainer3DCNN
@@ -56,7 +56,6 @@ def main():
     else:
         raise ValueError(f"Optimizer {args.optimizer} not supported.")
 
-    # 5. Data preparation (Using SegmentationDataset instead of VideoDataset)
     if not os.path.exists(args.data_preprocessed_dir):
         print(f"Error: Dataset directory not found at {args.data_preprocessed_dir}")
         print(
@@ -64,8 +63,7 @@ def main():
         )
         return  # Exit if data directory is not found
 
-    # Tạo SegmentationDataset với YOLO segmentation
-    full_dataset = SegmentationDataset(
+    full_dataset = VideoDataset(
         video_dir=args.data_preprocessed_dir,
         classes_list=['fight', 'no_fi'],  # Hoặc để None để auto-detect
         model_path="yolo11n-seg.pt",  
