@@ -64,7 +64,7 @@ def main():
         return  # Exit if data directory is not found
 
     full_dataset = VideoDataset(
-        video_dir=args.data_preprocessed_dir,
+        data_dir=args.data_preprocessed_dir,
         classes_list=['fight', 'no_fi'],
         sequence_length=args.sequence_length,
         image_height=args.image_height,
