@@ -116,7 +116,7 @@ def main():
 
     # Gọi hàm tiền xử lý
     preprocess_videos(
-        data_dir=args.data_raw_dir,
+        data_dir=args.data_raw_dir, 
         output_dir=args.data_preprocessed_dir,
         image_height=args.image_height,
         image_width=args.image_width,

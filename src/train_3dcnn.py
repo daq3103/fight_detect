@@ -65,9 +65,7 @@ def main():
 
     full_dataset = VideoDataset(
         video_dir=args.data_preprocessed_dir,
-        classes_list=['fight', 'no_fi'],  # Hoặc để None để auto-detect
-        model_path="yolo11n-seg.pt",  
-        target_class="person",
+        classes_list=['fight', 'no_fight'],
         sequence_length=args.sequence_length,
         image_height=args.image_height,
         image_width=args.image_width,

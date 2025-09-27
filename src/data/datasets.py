@@ -12,7 +12,7 @@ from ultralytics import YOLO
 class VideoDataset(Dataset):
     def __init__(self, data_dir, classes_list, sequence_length, image_height, image_width):
         self.data_dir = data_dir # Đây là đường dẫn đến thư mục PROCESSED_DATA
-        self.classes_list = classes_list
+        self.classes_list = classes_list 
         self.sequence_length = sequence_length
         self.image_height = image_height
         self.image_width = image_width
