@@ -65,7 +65,7 @@ def main():
 
     full_dataset = VideoDataset(
         video_dir=args.data_preprocessed_dir,
-        classes_list=['fight', 'no_fight'],
+        classes_list=['fight', 'no_fi'],
         sequence_length=args.sequence_length,
         image_height=args.image_height,
         image_width=args.image_width,
